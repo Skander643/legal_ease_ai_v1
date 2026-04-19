@@ -6,6 +6,8 @@ import 'features/auth/presentation/auth_wrapper.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/presentation/onboarding_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,14 +18,21 @@ void main() async{
 // Initialize Hive and open the required analysis_box
   await Hive.initFlutter();
   await Hive.openBox('analysis_box');
+
+  // VÉRIFICATION DU PREMIER LANCEMENT
+  final prefs = await SharedPreferences.getInstance();
+  final bool showOnboarding = !(prefs.getBool('onboarding_complete') ?? false);
+
+  // On passe la variable showOnboarding à notre app
+  runApp(ProviderScope(child: LegalEaseApp(showOnboarding: showOnboarding)));
   
 
-  // Wrap the entire app in a ProviderScope (required by Riverpod) 
-  runApp(const ProviderScope(child: LegalEaseApp()));
 }
 
 class LegalEaseApp extends ConsumerWidget {
-  const LegalEaseApp({super.key});
+
+  final bool showOnboarding;
+  const LegalEaseApp({super.key,required this.showOnboarding});
 
   @override
   Widget build(BuildContext context,WidgetRef ref) {
@@ -55,7 +64,7 @@ class LegalEaseApp extends ConsumerWidget {
       ),
       
       // A temporary home screen to test that the app runs
-      home: const AuthWrapper(),
+     home: showOnboarding ? const OnboardingScreen() : const AuthWrapper(),
     );
   }
 }
