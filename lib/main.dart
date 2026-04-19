@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/providers/theme_provider.dart';
 import 'features/auth/presentation/auth_wrapper.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,16 +17,19 @@ void main() async{
   runApp(const ProviderScope(child: LegalEaseApp()));
 }
 
-class LegalEaseApp extends StatelessWidget {
+class LegalEaseApp extends ConsumerWidget {
   const LegalEaseApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'Legal-Ease AI',
       debugShowCheckedModeBanner: false,
       // Automatic light/dark mode based on the user's system 
-      themeMode: ThemeMode.system, 
+      themeMode: themeMode, 
       
       // Light Theme Setup 
       theme: ThemeData(

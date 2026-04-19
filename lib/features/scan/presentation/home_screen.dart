@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/providers/theme_provider.dart';
 import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
@@ -44,6 +45,13 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => ref.read(authProvider.notifier).logoutMock(),
             tooltip: 'Se déconnecter',
           ),
+          IconButton(
+            icon: Icon(Theme.of(context).brightness == Brightness.dark
+                ? Icons.light_mode
+                : Icons.dark_mode),
+            onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
+            tooltip: 'Changer le thème',
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -54,7 +62,7 @@ class HomeScreen extends ConsumerWidget {
             // Phase 6: Chart
             const StatisticsChart(),
             const SizedBox(height: 24),
-            
+
             // Upload Card
             Card(
               elevation: 4,
@@ -122,7 +130,7 @@ class HomeScreen extends ConsumerWidget {
                         const Text('Texte extrait (Aperçu) :',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        
+
                         // FIX: Replaced Expanded with a constrained Container
                         Container(
                           height: 150, // Fixed height for preview
