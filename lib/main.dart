@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'features/auth/presentation/auth_wrapper.dart';
 
 void main() {
   // Wrap the entire app in a ProviderScope (required by Riverpod) 
@@ -36,15 +37,7 @@ class LegalEaseApp extends StatelessWidget {
       ),
       
       // A temporary home screen to test that the app runs
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Legal-Ease AI')),
-        body: const Center(
-          child: Text(
-            'Phase 1 Complete: App Initialized!',
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      ),
+      home: const AuthWrapper(),
     );
   }
 }
