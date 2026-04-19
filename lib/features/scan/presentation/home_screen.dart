@@ -4,6 +4,7 @@ import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart'
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../history/widgets/statistics_chart.dart';
 import '../providers/scan_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -28,11 +29,6 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Mes Contrats'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authProvider.notifier).logoutMock(),
-            tooltip: 'Se déconnecter',
-          ),
-          IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.push(
@@ -43,13 +39,22 @@ class HomeScreen extends ConsumerWidget {
             },
             tooltip: 'Historique',
           ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => ref.read(authProvider.notifier).logoutMock(),
+            tooltip: 'Se déconnecter',
+          ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Phase 6: Chart
+            const StatisticsChart(),
+            const SizedBox(height: 24),
+            
             // Upload Card
             Card(
               elevation: 4,
@@ -82,70 +87,84 @@ class HomeScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Results Area
-            if (scanState.selectedFile != null) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Fichier sélectionné :',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.red),
-                    onPressed: () =>
-                        ref.read(scanProvider.notifier).clearSelection(),
-                  )
-                ],
-              ),
-              Text(scanState.selectedFile!.path
-                  .split('/')
-                  .last), // Show filename
-              const SizedBox(height: 16),
-              const Text('Texte extrait (Aperçu) :',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+            // Phase 6: Animated Switcher + Layout fixes (No Expanded inside ScrollView)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(
+                    sizeFactor: animation,
+                    child: child,
                   ),
-                  child: SingleChildScrollView(
-                    // Show only the first 500 characters so it doesn't crash the UI with huge text
-                    child: Text(
-                      scanState.extractedText.length > 500
-                          ? '${scanState.extractedText.substring(0, 500)}...'
-                          : scanState.extractedText,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // This button will be used in Phase 4 to trigger the AI
-              FilledButton(
-                onPressed: () {
-                  // 1. Trigger the AI analysis
-                  ref
-                      .read(analysisProvider.notifier)
-                      .analyzeContract(scanState.extractedText);
+                );
+              },
+              child: scanState.selectedFile != null
+                  ? Column(
+                      key: const ValueKey('has_file'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Fichier sélectionné :',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () => ref
+                                  .read(scanProvider.notifier)
+                                  .clearSelection(),
+                            )
+                          ],
+                        ),
+                        Text(scanState.selectedFile!.path.split('/').last),
+                        const SizedBox(height: 16),
+                        const Text('Texte extrait (Aperçu) :',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        
+                        // FIX: Replaced Expanded with a constrained Container
+                        Container(
+                          height: 150, // Fixed height for preview
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              scanState.extractedText.length > 500
+                                  ? '${scanState.extractedText.substring(0, 500)}...'
+                                  : scanState.extractedText,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: () {
+                            ref
+                                .read(analysisProvider.notifier)
+                                .analyzeContract(scanState.extractedText);
 
-                  // 2. Navigate to the Result Screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ResultScreen()),
-                  );
-                },
-                child: const Text('Lancer l\'analyse IA'),
-              )
-            ] else ...[
-              const Expanded(
-                child: Center(
-                  child: Text('Aucun document sélectionné.',
-                      style: TextStyle(color: Colors.grey)),
-                ),
-              )
-            ]
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ResultScreen()),
+                            );
+                          },
+                          child: const Text('Lancer l\'analyse IA'),
+                        ),
+                      ],
+                    )
+                  : const Center(
+                      key: ValueKey('no_file'),
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Aucun document sélectionné.',
+                            style: TextStyle(color: Colors.grey)),
+                      ),
+                    ),
+            ),
           ],
         ),
       ),
