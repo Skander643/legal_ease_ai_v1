@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
+import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/scan_provider.dart';
 
@@ -31,6 +32,17 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => ref.read(authProvider.notifier).logoutMock(),
             tooltip: 'Se déconnecter',
           ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const HistoryListScreen()),
+              );
+            },
+            tooltip: 'Historique',
+          ),
         ],
       ),
       body: Padding(
@@ -45,17 +57,21 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    const Icon(Icons.picture_as_pdf, size: 64, color: Colors.deepPurple),
+                    const Icon(Icons.picture_as_pdf,
+                        size: 64, color: Colors.deepPurple),
                     const SizedBox(height: 16),
                     const Text(
                       'Analysez un nouveau contrat',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     scanState.isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton.icon(
-                            onPressed: () => ref.read(scanProvider.notifier).pickAndProcessPdf(),
+                            onPressed: () => ref
+                                .read(scanProvider.notifier)
+                                .pickAndProcessPdf(),
                             icon: const Icon(Icons.upload_file),
                             label: const Text('Sélectionner un PDF'),
                           ),
@@ -63,24 +79,29 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Results Area
             if (scanState.selectedFile != null) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Fichier sélectionné :', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Fichier sélectionné :',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   IconButton(
                     icon: const Icon(Icons.clear, color: Colors.red),
-                    onPressed: () => ref.read(scanProvider.notifier).clearSelection(),
+                    onPressed: () =>
+                        ref.read(scanProvider.notifier).clearSelection(),
                   )
                 ],
               ),
-              Text(scanState.selectedFile!.path.split('/').last), // Show filename
+              Text(scanState.selectedFile!.path
+                  .split('/')
+                  .last), // Show filename
               const SizedBox(height: 16),
-              const Text('Texte extrait (Aperçu) :', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Texte extrait (Aperçu) :',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Expanded(
                 child: Container(
@@ -92,8 +113,8 @@ class HomeScreen extends ConsumerWidget {
                   child: SingleChildScrollView(
                     // Show only the first 500 characters so it doesn't crash the UI with huge text
                     child: Text(
-                      scanState.extractedText.length > 500 
-                          ? '${scanState.extractedText.substring(0, 500)}...' 
+                      scanState.extractedText.length > 500
+                          ? '${scanState.extractedText.substring(0, 500)}...'
                           : scanState.extractedText,
                     ),
                   ),
@@ -104,12 +125,15 @@ class HomeScreen extends ConsumerWidget {
               FilledButton(
                 onPressed: () {
                   // 1. Trigger the AI analysis
-                  ref.read(analysisProvider.notifier).analyzeContract(scanState.extractedText);
-                  
+                  ref
+                      .read(analysisProvider.notifier)
+                      .analyzeContract(scanState.extractedText);
+
                   // 2. Navigate to the Result Screen
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ResultScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const ResultScreen()),
                   );
                 },
                 child: const Text('Lancer l\'analyse IA'),
@@ -117,7 +141,8 @@ class HomeScreen extends ConsumerWidget {
             ] else ...[
               const Expanded(
                 child: Center(
-                  child: Text('Aucun document sélectionné.', style: TextStyle(color: Colors.grey)),
+                  child: Text('Aucun document sélectionné.',
+                      style: TextStyle(color: Colors.grey)),
                 ),
               )
             ]

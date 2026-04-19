@@ -35,7 +35,10 @@ dependencies:
   path_provider: ^2.1.2    # To get the local storage directory
   syncfusion_flutter_pdf: ^24.2.3 # Excellent for extracting text from PDFs
   dio: ^5.4.3+1             # For API requests
-  flutter_dotenv: ^5.1.0    # For the API key
+  flutter_dotenv:
+  hive: ^2.2.3            # Core database
+  hive_flutter: ^1.1.0    # Flutter extensions for Hive
+  uuid: ^4.3.3            # To generate unique IDs for history items ^5.1.0    # For the API key
 
 
   # The following adds the Cupertino Icons font to your application.

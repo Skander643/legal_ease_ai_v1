@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/auth/presentation/auth_wrapper.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env"); // Load API key
+// Initialize Hive and open the required analysis_box
+  await Hive.initFlutter();
+  await Hive.openBox('analysis_box');
+  
+
   // Wrap the entire app in a ProviderScope (required by Riverpod) 
   runApp(const ProviderScope(child: LegalEaseApp()));
 }
