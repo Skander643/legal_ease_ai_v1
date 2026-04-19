@@ -3,9 +3,64 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/analysis_provider.dart';
 import '../../history/models/history_item.dart';
 import '../../history/providers/history_provider.dart';
+import 'dart:io';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ResultScreen extends ConsumerWidget {
   const ResultScreen({super.key});
+
+  Future<void> _exportToPdf(BuildContext context, dynamic result) async {
+    try {
+      // Create a new PDF document
+      final PdfDocument document = PdfDocument();
+      final PdfPage page = document.pages.add();
+      final PdfStandardFont font = PdfStandardFont(PdfFontFamily.helvetica, 12);
+      final PdfStandardFont titleFont = PdfStandardFont(
+          PdfFontFamily.helvetica, 18,
+          style: PdfFontStyle.bold);
+
+      // Draw text to the PDF
+      page.graphics.drawString('Rapport d\'Analyse Legal-Ease AI', titleFont,
+          bounds: const Rect.fromLTWH(0, 0, 500, 30));
+      page.graphics.drawString('Résumé :\n${result.summary}', font,
+          bounds: const Rect.fromLTWH(0, 40, 500, 150));
+
+      // Convert Clauses and Risks to string blocks
+      final clauses = result.keyClauses.join('\n- ');
+      page.graphics.drawString('Clauses Clés :\n- $clauses', font,
+          bounds: const Rect.fromLTWH(0, 200, 500, 150));
+
+      final risks = result.risks.join('\n- ');
+      page.graphics.drawString('Risques :\n- $risks', font,
+          bounds: const Rect.fromLTWH(0, 360, 500, 150));
+
+      // Save the document locally
+      final List<int> bytes = await document.save();
+      document.dispose();
+
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File(
+          '${directory.path}/Analyse_Contrat_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      await file.writeAsBytes(bytes);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('PDF sauvegardé : ${file.path}'),
+              backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Erreur lors de la création du PDF : $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -118,6 +173,13 @@ class ResultScreen extends ConsumerWidget {
           );
         },
       ),
+      floatingActionButton: analysisState.value != null
+          ? FloatingActionButton.extended(
+              onPressed: () => _exportToPdf(context, analysisState.value),
+              icon: const Icon(Icons.picture_as_pdf),
+              label: const Text('Exporter PDF'),
+            )
+          : null,
     );
   }
 }

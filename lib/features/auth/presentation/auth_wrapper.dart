@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import '../providers/auth_provider.dart'; // Ensure this points to your new Firebase provider
 import 'login_screen.dart';
 import '../../scan/presentation/home_screen.dart';
 
@@ -9,14 +9,24 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Listen to the current authentication state
-    final authState = ref.watch(authProvider);
+    // Watch the Firebase Auth stream
+    final authState = ref.watch(authStateProvider);
 
-    // Route based on state
-    if (authState == AuthStatus.authenticated) {
-      return const HomeScreen();
-    } else {
-      return const LoginScreen();
-    }
+    return authState.when(
+      data: (user) {
+        // If a Firebase user exists, go to Home, else go to Login
+        if (user != null) {
+          return const HomeScreen();
+        } else {
+          return const LoginScreen();
+        }
+      },
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, trace) => Scaffold(
+        body: Center(child: Text('Erreur d\'authentification : $e')),
+      ),
+    );
   }
 }

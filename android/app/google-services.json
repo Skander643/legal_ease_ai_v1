@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "174609982242",
+    "project_id": "legalease-eb4b6",
+    "storage_bucket": "legalease-eb4b6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174609982242:android:7537b53dcf0cc12fce7b7b",
+        "android_client_info": {
+          "package_name": "com.example.legal_ease_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174609982242-9om48qlpcal0rjf0g4pv0f013s1h0cbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.legal_ease_ai",
+            "certificate_hash": "ce147ac392c6c18392fb9b9d08bedd09c03edf7f"
+          }
+        },
+        {
+          "client_id": "174609982242-hin9ahavdm0dh1otno75v232qp837e3m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC77FYpOWcIVHzdfA3IRWR7ze_bg3JZmSs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174609982242-hin9ahavdm0dh1otno75v232qp837e3m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "174609982242-emmlm3arjiousb2va4obik5b8tg0asod.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.legalEaseAi"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174609982242:android:d8f750b94dcc936ace7b7b",
+        "android_client_info": {
+          "package_name": "com.legalease"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174609982242-4j1iatg8or4hfohmr093kfr6fb66gdbq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.legalease",
+            "certificate_hash": "ce147ac392c6c18392fb9b9d08bedd09c03edf7f"
+          }
+        },
+        {
+          "client_id": "174609982242-hin9ahavdm0dh1otno75v232qp837e3m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC77FYpOWcIVHzdfA3IRWR7ze_bg3JZmSs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174609982242-hin9ahavdm0dh1otno75v232qp837e3m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "174609982242-emmlm3arjiousb2va4obik5b8tg0asod.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.legalEaseAi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

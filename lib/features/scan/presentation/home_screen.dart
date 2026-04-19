@@ -42,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authProvider.notifier).logoutMock(),
+            onPressed: () => ref.read(authControllerProvider).signOut(),
             tooltip: 'Se déconnecter',
           ),
           IconButton(
