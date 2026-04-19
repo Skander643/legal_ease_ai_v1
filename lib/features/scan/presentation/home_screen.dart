@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
+import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/scan_provider.dart';
 
@@ -101,8 +103,13 @@ class HomeScreen extends ConsumerWidget {
               // This button will be used in Phase 4 to trigger the AI
               FilledButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('L\'envoi à l\'IA sera implémenté à la phase 4 !')),
+                  // 1. Trigger the AI analysis
+                  ref.read(analysisProvider.notifier).analyzeContract(scanState.extractedText);
+                  
+                  // 2. Navigate to the Result Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ResultScreen()),
                   );
                 },
                 child: const Text('Lancer l\'analyse IA'),

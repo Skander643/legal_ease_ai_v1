@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/auth/presentation/auth_wrapper.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env"); // Load API key
   // Wrap the entire app in a ProviderScope (required by Riverpod) 
   runApp(const ProviderScope(child: LegalEaseApp()));
 }
