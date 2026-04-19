@@ -4,6 +4,7 @@ import 'package:legal_ease_ai/core/providers/theme_provider.dart';
 import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
+import 'package:legal_ease_ai/features/scan/widgets/main_drawer.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/widgets/statistics_chart.dart';
 import '../providers/scan_provider.dart';
@@ -15,6 +16,10 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the scan state
     final scanState = ref.watch(scanProvider);
+    // Récupérer l'utilisateur pour le message de bienvenue
+    final user = ref.watch(authStateProvider).value;
+
+    final firstName = user?.displayName?.split(' ').first ?? 'Utilisateur';
 
     // Listen for errors to show a SnackBar
     ref.listen<ScanState>(scanProvider, (previous, next) {
@@ -54,11 +59,28 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+      drawer: const MainDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+
+            // --- MESSAGE DE BIENVENUE ---
+            Text(
+              'Salut $firstName 👋',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Que souhaitez-vous analyser aujourd\'hui ?',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey),
+            ),
+            
+            const SizedBox(height: 30),
             // Phase 6: Chart
             const StatisticsChart(),
             const SizedBox(height: 24),
