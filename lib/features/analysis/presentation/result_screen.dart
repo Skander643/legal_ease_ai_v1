@@ -5,7 +5,10 @@ import '../../history/models/history_item.dart';
 import '../../history/providers/history_provider.dart';
 import 'dart:io';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+
 import 'package:path_provider/path_provider.dart';
+
+import 'package:share_plus/share_plus.dart';
 
 class ResultScreen extends ConsumerWidget {
   const ResultScreen({super.key});
@@ -45,12 +48,12 @@ class ResultScreen extends ConsumerWidget {
       await file.writeAsBytes(bytes);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('PDF sauvegardé : ${file.path}'),
-              backgroundColor: Colors.green),
-        );
-      }
+      await Share.shareXFiles(
+        [XFile(file.path)], 
+        text: 'Voici l\'analyse de mon contrat générée par Legal-Ease AI.',
+        subject: 'Rapport Legal-Ease AI', // Sujet utile pour les emails
+      );
+    }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -176,8 +179,8 @@ class ResultScreen extends ConsumerWidget {
       floatingActionButton: analysisState.value != null
           ? FloatingActionButton.extended(
               onPressed: () => _exportToPdf(context, analysisState.value),
-              icon: const Icon(Icons.picture_as_pdf),
-              label: const Text('Exporter PDF'),
+              icon: const Icon(Icons.ios_share),
+              label: const Text('Exporter & Partager'),
             )
           : null,
     );
