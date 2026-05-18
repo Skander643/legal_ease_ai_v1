@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legal_ease_ai/features/auth/providers/auth_provider.dart';
+import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -35,11 +36,27 @@ class MainDrawer extends ConsumerWidget {
             ),
           ),
           
-          // Option Profil (pourrait mener à une page profil plus tard)
+          // Option Profil
           ListTile(
             leading: const Icon(Icons.account_circle),
             title: const Text('Mon Profil'),
             onTap: () => Navigator.pop(context),
+          ),
+
+          // Option Historique des analyses
+          ListTile(
+            leading: const Icon(Icons.history_edu),
+            title: const Text('Historique'),
+            subtitle: const Text('Vos analyses précédentes'),
+            onTap: () {
+              Navigator.pop(context); // Fermer le drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryListScreen(),
+                ),
+              );
+            },
           ),
           
           const Spacer(), // Pousse le logout vers le bas

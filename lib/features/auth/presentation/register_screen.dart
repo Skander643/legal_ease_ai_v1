@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -24,21 +25,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    final email = _emailController.text;
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir tous les champs')),
-      );
+      SnackbarHelper.showWarning(context, 'Veuillez remplir tous les champs');
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Les mots de passe ne correspondent pas')),
-      );
+      SnackbarHelper.showError(
+          context, 'Les mots de passe ne correspondent pas');
       return;
     }
 
@@ -47,13 +45,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     try {
       await ref.read(authControllerProvider).registerWithEmail(email, password);
       if (mounted) {
-        Navigator.pop(context); // Retour à la page de connexion après création (ou l'AuthWrapper prendra le relais direct)
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
+        SnackbarHelper.showError(context, e.toString());
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -69,45 +65,44 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.person_add, size: 80, color: Colors.deepPurple),
             const SizedBox(height: 32),
-            TextField(
+
+            // Email field
+            CustomTextField(
+              label: 'Email',
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
-              ),
+              prefixIcon: Icons.email,
               keyboardType: TextInputType.emailAddress,
+              isRequired: true,
             ),
             const SizedBox(height: 16),
-            TextField(
+
+            // Password field
+            CustomTextField(
+              label: 'Mot de passe',
               controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Mot de passe',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock),
-              ),
+              prefixIcon: Icons.lock,
               obscureText: true,
+              isRequired: true,
             ),
             const SizedBox(height: 16),
-            TextField(
+
+            // Confirm password field
+            CustomTextField(
+              label: 'Confirmer le mot de passe',
               controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirmer le mot de passe',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock_outline),
-              ),
+              prefixIcon: Icons.lock_outline,
               obscureText: true,
+              isRequired: true,
             ),
             const SizedBox(height: 32),
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _handleRegister,
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                    child: const Text('S\'inscrire', style: TextStyle(fontSize: 16)),
-                  ),
+
+            // Register button with loading state
+            CustomButton(
+              label: "S'inscrire",
+              onPressed: _handleRegister,
+              isLoading: _isLoading,
+            ),
           ],
         ),
       ),

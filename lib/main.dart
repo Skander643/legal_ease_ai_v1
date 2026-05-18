@@ -4,20 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legal_ease_ai/core/providers/theme_provider.dart';
 import 'features/auth/presentation/auth_wrapper.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/auth/presentation/onboarding_screen.dart';
-
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await dotenv.load(fileName: ".env"); // Load API key
-// Initialize Hive and open the required analysis_box
-  await Hive.initFlutter();
-  await Hive.openBox('analysis_box');
+
 
   // VÉRIFICATION DU PREMIER LANCEMENT
   final prefs = await SharedPreferences.getInstance();

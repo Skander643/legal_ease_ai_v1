@@ -1,47 +1,56 @@
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// HistoryItem
+///
+/// Représente une analyse sauvegardée dans Firestore.
+///
+/// Propriétés:
+/// - id: Identifiant unique (généré automatiquement)
+/// - pdfFileName: Nom du fichier PDF analysé
+/// - summary: Résumé généré par l'IA
+/// - date: Timestamp de création
+/// - keyClauses: Clauses importantes extraites
+/// - risks: Risques identifiés
 class HistoryItem {
   final String id;
-  final String title;
-  final DateTime date;
-  final String pdfPath;
-  final String summary;
-  final List<String> keyClauses;
-  final List<String> risks;
+  final String pdfFileName; // Nom du fichier PDF
+  final String summary; // Résumé de l'analyse
+  final DateTime date; // Timestamp de création
 
   HistoryItem({
     String? id,
-    required this.title,
-    required this.date,
-    required this.pdfPath,
+    required this.pdfFileName,
     required this.summary,
-    required this.keyClauses,
-    required this.risks,
+    required this.date,
   }) : id = id ?? const Uuid().v4();
 
-  // Convert to Map for Hive storage
+  /// toMap
+  ///
+  /// Convertit l'HistoryItem en Map pour Firestore.
+  /// Firestore stocke les DateTime comme Timestamp automatiquement.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'title': title,
-      'date': date.toIso8601String(),
-      'pdfPath': pdfPath,
+      'pdfFileName': pdfFileName,
       'summary': summary,
-      'keyClauses': keyClauses,
-      'risks': risks,
+      'date': date,
     };
   }
 
-  // Create from Map (when reading from Hive)
-  factory HistoryItem.fromMap(Map<dynamic, dynamic> map) {
+  /// fromFirestore
+  ///
+  /// Crée un HistoryItem à partir d'un document Firestore.
+  ///
+  /// Paramètres:
+  /// - doc: DocumentSnapshot de Firestore
+  factory HistoryItem.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
     return HistoryItem(
-      id: map['id'],
-      title: map['title'],
-      date: DateTime.parse(map['date']),
-      pdfPath: map['pdfPath'],
-      summary: map['summary'],
-      keyClauses: List<String>.from(map['keyClauses']),
-      risks: List<String>.from(map['risks']),
+      id: data['id'] ?? doc.id,
+      pdfFileName: data['pdfFileName'] ?? 'Contrat',
+      summary: data['summary'] ?? '',
+      date: (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }

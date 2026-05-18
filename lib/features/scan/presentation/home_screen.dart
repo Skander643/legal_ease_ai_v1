@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legal_ease_ai/core/providers/theme_provider.dart';
-import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
-import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
-import 'package:legal_ease_ai/features/history/presentation/history_list_screen.dart';
+import 'package:legal_ease_ai/widgets/widgets.dart';
 import 'package:legal_ease_ai/features/scan/widgets/main_drawer.dart';
+import 'package:legal_ease_ai/features/scan/widgets/selected_file_preview.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/widgets/statistics_chart.dart';
 import '../providers/scan_provider.dart';
@@ -14,19 +13,14 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the scan state
     final scanState = ref.watch(scanProvider);
-    // Récupérer l'utilisateur pour le message de bienvenue
     final user = ref.watch(authStateProvider).value;
-
     final firstName = user?.displayName?.split(' ').first ?? 'Utilisateur';
 
-    // Listen for errors to show a SnackBar
+    // Show error snackbar via SnackbarHelper
     ref.listen<ScanState>(scanProvider, (previous, next) {
       if (next.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!), backgroundColor: Colors.red),
-        );
+        SnackbarHelper.showError(context, next.error!);
       }
     });
 
@@ -34,17 +28,6 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Mes Contrats'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const HistoryListScreen()),
-              );
-            },
-            tooltip: 'Historique',
-          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authControllerProvider).signOut(),
@@ -66,133 +49,70 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 
-            // --- MESSAGE DE BIENVENUE ---
+            // Welcome message
             Text(
               'Salut $firstName 👋',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Que souhaitez-vous analyser aujourd\'hui ?',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey),
+              "Que souhaitez-vous analyser aujourd'hui ?",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: Colors.grey),
             ),
-            
+
             const SizedBox(height: 30),
-            // Phase 6: Chart
+
+            // Statistics overview
             const StatisticsChart(),
             const SizedBox(height: 24),
 
-            // Upload Card
-            Card(
+            // Upload card using CustomCard
+            CustomCard(
+              icon: Icons.picture_as_pdf,
+              title: 'Analysez un nouveau contrat',
               elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    const Icon(Icons.picture_as_pdf,
-                        size: 64, color: Colors.deepPurple),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Analysez un nouveau contrat',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    scanState.isLoading
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton.icon(
-                            onPressed: () => ref
-                                .read(scanProvider.notifier)
-                                .pickAndProcessPdf(),
-                            icon: const Icon(Icons.upload_file),
-                            label: const Text('Sélectionner un PDF'),
-                          ),
-                  ],
-                ),
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: scanState.isLoading
+                    ? const LoadingSpinner(
+                        fullScreen: false,
+                        message: 'Extraction du texte...',
+                        spinnerSize: 36,
+                      )
+                    : CustomButton(
+                        label: 'Sélectionner un PDF',
+                        onPressed: () =>
+                            ref.read(scanProvider.notifier).pickAndProcessPdf(),
+                        icon: Icons.upload_file,
+                        fullWidth: false,
+                      ),
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Phase 6: Animated Switcher + Layout fixes (No Expanded inside ScrollView)
+            // Animated switcher: file selected vs. no file
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(
-                    sizeFactor: animation,
-                    child: child,
-                  ),
-                );
-              },
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SizeTransition(sizeFactor: animation, child: child),
+              ),
               child: scanState.selectedFile != null
-                  ? Column(
-                      key: const ValueKey('has_file'),
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Fichier sélectionné :',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.red),
-                              onPressed: () => ref
-                                  .read(scanProvider.notifier)
-                                  .clearSelection(),
-                            )
-                          ],
-                        ),
-                        Text(scanState.selectedFile!.path.split('/').last),
-                        const SizedBox(height: 16),
-                        const Text('Texte extrait (Aperçu) :',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-
-                        // FIX: Replaced Expanded with a constrained Container
-                        Container(
-                          height: 150, // Fixed height for preview
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceVariant,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              scanState.extractedText.length > 500
-                                  ? '${scanState.extractedText.substring(0, 500)}...'
-                                  : scanState.extractedText,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton(
-                          onPressed: () {
-                            ref
-                                .read(analysisProvider.notifier)
-                                .analyzeContract(scanState.extractedText);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ResultScreen()),
-                            );
-                          },
-                          child: const Text('Lancer l\'analyse IA'),
-                        ),
-                      ],
-                    )
-                  : const Center(
+                  ? const SelectedFilePreview(key: ValueKey('has_file'))
+                  : const EmptyStateWidget(
                       key: ValueKey('no_file'),
-                      child: Padding(
-                        padding: EdgeInsets.all(32.0),
-                        child: Text('Aucun document sélectionné.',
-                            style: TextStyle(color: Colors.grey)),
-                      ),
+                      icon: Icons.insert_drive_file_outlined,
+                      title: 'Aucun document sélectionné',
+                      description:
+                          'Sélectionnez un PDF ci-dessus pour commencer l\'analyse.',
+                      fullScreen: false,
                     ),
             ),
           ],
