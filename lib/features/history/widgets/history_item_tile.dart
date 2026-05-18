@@ -13,7 +13,7 @@ import '../providers/history_provider.dart';
 /// - Card layout with file name and date
 /// - Tap to open a summary detail dialog
 /// - Uses [SnackbarHelper] for delete confirmation
-class HistoryItemTile extends ConsumerWidget {
+class HistoryItemTile extends StatelessWidget {
   final HistoryItem item;
 
   const HistoryItemTile({super.key, required this.item});
@@ -38,33 +38,37 @@ class HistoryItemTile extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Dismissible(
-      key: Key(item.id),
-      background: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) {
-        ref.read(historyControllerProvider).deleteHistory(item.id);
-        SnackbarHelper.showInfo(context, 'Analyse supprimée');
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: ListTile(
-          leading: const Icon(Icons.history_edu),
-          title: Text(item.pdfFileName),
-          subtitle: Text(
-            _formattedDate(),
-            style: Theme.of(context).textTheme.bodySmall,
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        return Dismissible(
+          key: Key(item.id),
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => _showSummaryDialog(context),
-        ),
-      ),
+          direction: DismissDirection.endToStart,
+          onDismissed: (_) {
+            ref.read(historyControllerProvider).deleteHistory(item.id);
+            SnackbarHelper.showInfo(context, 'Analyse supprimée');
+          },
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListTile(
+              leading: const Icon(Icons.history_edu),
+              title: Text(item.pdfFileName),
+              subtitle: Text(
+                _formattedDate(),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showSummaryDialog(context),
+            ),
+          ),
+        );
+      },
     );
   }
 }
