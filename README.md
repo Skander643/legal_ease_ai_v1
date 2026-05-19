@@ -26,8 +26,6 @@ Application **Flutter** cross-platform permettant d’importer un contrat au for
 - [Gestion d’état (Riverpod)](#gestion-détat-riverpod)
 - [Gestion des erreurs](#gestion-des-erreurs)
 - [Structure du dépôt](#structure-du-dépôt)
-- [Limites connues](#limites-connues)
-- [Licence et usage académique](#licence-et-usage-académique)
 
 ---
 
@@ -293,25 +291,7 @@ legal_ease_ai/
 └── README.md               # Documentation du projet
 ```
 
----
 
-## Limites connues
-
-- Analyse limitée aux **4 000 premiers caractères** du document source.
-- Pas de modèle **Machine Learning** embarqué : l’intelligence repose sur un **LLM distant** (Groq).
-- Historique non consultable hors ligne (dépendance Firestore).
-- Visualisation statistique simplifiée (compteur de contrats, sans graphiques avancés).
-- Interface optimisée **mobile-first** ; adaptation tablette/desktop non spécifique.
-
----
-
-## Licence et usage académique
-
-Projet à vocation **éducative** — module développement mobile cross-platform.
-
-Les clés API, identifiants Firebase et documents contractuels de test ne doivent pas être exposés publiquement.
-
----
 
 <p align="center">
   <sub>Legal-Ease AI · Flutter · Riverpod · Firebase · Groq Cloud</sub>
