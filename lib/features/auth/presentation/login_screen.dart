@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
+import 'package:legal_ease_ai/core/utils/auth_error_message.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 import 'register_screen.dart';
@@ -24,11 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleEmailLogin(WidgetRef ref) async {
+    final l10n = context.l10n;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      SnackbarHelper.showWarning(context, 'Veuillez remplir tous les champs');
+      SnackbarHelper.showWarning(context, l10n.fillAllFields);
       return;
     }
 
@@ -38,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await ref.read(authControllerProvider).signInWithEmail(email, password);
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, e.toString());
+        SnackbarHelper.showError(context, formatAuthErrorMessage(e, l10n));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -46,22 +49,28 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleLogin(WidgetRef ref) async {
-    SnackbarHelper.showInfo(context, 'Connexion Google en cours...');
+    final l10n = context.l10n;
+    SnackbarHelper.showInfo(context, l10n.googleSignInInProgress);
     try {
       await ref.read(authControllerProvider).signInWithGoogle();
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, e.toString());
+        SnackbarHelper.showError(
+          context,
+          l10n.authErrorGoogle(formatAuthErrorMessage(e, l10n)),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Consumer(
       builder: (context, ref, child) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Connexion - Legal-Ease AI')),
+          appBar: AppBar(title: Text(l10n.loginTitle)),
           body: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -72,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Icon(Icons.gavel, size: 80, color: Colors.deepPurple),
                   const SizedBox(height: 24),
                   Text(
-                    'Bienvenue',
+                    l10n.welcome,
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
@@ -80,51 +89,41 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-
-                  // Email field
                   CustomTextField(
-                    label: 'Email',
+                    label: l10n.email,
                     controller: _emailController,
                     prefixIcon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
                     isRequired: true,
                   ),
                   const SizedBox(height: 16),
-
-                  // Password field
                   CustomTextField(
-                    label: 'Mot de passe',
+                    label: l10n.password,
                     controller: _passwordController,
                     prefixIcon: Icons.lock,
                     obscureText: true,
                     isRequired: true,
                   ),
                   const SizedBox(height: 24),
-
-                  // Login button with loading state
                   CustomButton(
-                    label: 'Se connecter',
+                    label: l10n.signIn,
+                    loadingLabel: l10n.loading,
                     onPressed: () => _handleEmailLogin(ref),
                     isLoading: _isLoading,
                     icon: Icons.login,
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Navigate to register
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const RegisterScreen()),
                     ),
-                    child: const Text("Pas encore de compte ? S'inscrire"),
+                    child: Text(l10n.noAccountSignUp),
                   ),
-
                   const Divider(height: 48),
-
-                  // Google sign-in
                   CustomButton(
-                    label: 'Se connecter avec Google',
+                    label: l10n.signInWithGoogle,
+                    loadingLabel: l10n.loading,
                     onPressed: () => _handleGoogleLogin(ref),
                     icon: Icons.account_circle,
                   ),

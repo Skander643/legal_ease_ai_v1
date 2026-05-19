@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/analysis_provider.dart';
 import '../../history/models/history_item.dart';
@@ -12,25 +13,25 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Résultat de l'analyse")),
+      appBar: AppBar(title: Text(l10n.analysisResultTitle)),
       body: Consumer(
         builder: (context, ref, child) {
           final analysisState = ref.watch(analysisProvider);
 
           return analysisState.when(
-            // Loading state
-            loading: () => const LoadingSpinner(
-              message:
-                  "L'IA analyse votre contrat...\ncela peut prendre quelques secondes.",
+            loading: () => LoadingSpinner(
+              message: l10n.aiAnalyzing,
               fullScreen: false,
             ),
-            
             error: (error, _) {
               final extractedText = ref.read(scanProvider).extractedText;
               return ErrorDisplayWidget(
                 message: error.toString(),
                 fullScreen: false,
+                retryLabel: l10n.retry,
                 onRetry: extractedText.isEmpty
                     ? null
                     : () => ref
@@ -38,19 +39,16 @@ class ResultScreen extends StatelessWidget {
                         .analyzeContract(extractedText),
               );
             },
-
-            // Data state
             data: (result) {
               if (result == null) {
-                return const EmptyStateWidget(
+                return EmptyStateWidget(
                   icon: Icons.find_in_page_outlined,
-                  title: 'Aucun résultat',
-                  description: "L'analyse n'a pas produit de résultat.",
+                  title: l10n.noResult,
+                  description: l10n.noResultDescription,
                   fullScreen: false,
                 );
               }
 
-              // Save to history exactly once when data loads
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 final historyAsync = ref.read(historyProvider);
                 final historyItems = historyAsync.valueOrNull ?? [];
@@ -58,7 +56,7 @@ class ResultScreen extends StatelessWidget {
                   final scanState = ref.read(scanProvider);
                   final fileName = scanState.selectedFile != null
                       ? scanState.selectedFile!.path.split('/').last
-                      : 'Contrat analysé';
+                      : l10n.analyzedContract;
 
                   final newItem = HistoryItem(
                     pdfFileName: fileName,
@@ -74,10 +72,9 @@ class ResultScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Summary card using CustomCard
                     CustomCard(
                       icon: Icons.summarize,
-                      title: 'Résumé Simplifié',
+                      title: l10n.simplifiedSummary,
                       backgroundColor:
                           Theme.of(context).colorScheme.primaryContainer,
                       child: MarkdownBody(

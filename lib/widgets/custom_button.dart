@@ -4,6 +4,7 @@ enum ButtonType { elevated, outlined, text }
 
 class CustomButton extends StatelessWidget {
   final String label;
+  final String? loadingLabel;
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool fullWidth;
@@ -16,6 +17,7 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.loadingLabel,
     this.isLoading = false,
     this.fullWidth = true,
     this.icon,
@@ -39,7 +41,7 @@ class CustomButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : (icon != null ? Icon(icon) : const SizedBox.shrink()),
-        label: Text(isLoading ? 'Chargement...' : label),
+        label: Text(isLoading ? (loadingLabel ?? '...') : label),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           padding: padding,
@@ -56,7 +58,7 @@ class CustomButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : (icon != null ? Icon(icon) : const SizedBox.shrink()),
-        label: Text(isLoading ? 'Chargement...' : label),
+        label: Text(isLoading ? (loadingLabel ?? '...') : label),
         style: OutlinedButton.styleFrom(
           padding: padding,
           minimumSize: fullWidth ? const Size.fromHeight(50) : null,
@@ -72,7 +74,7 @@ class CustomButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : (icon != null ? Icon(icon) : const SizedBox.shrink()),
-        label: Text(isLoading ? 'Chargement...' : label),
+        label: Text(isLoading ? (loadingLabel ?? '...') : label),
       );
     }
 

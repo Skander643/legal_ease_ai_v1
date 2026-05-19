@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:legal_ease_ai/core/providers/locale_provider.dart';
 
 class ScanState {
   final File? selectedFile;
@@ -16,7 +18,6 @@ class ScanState {
     this.isLoading = false,
     this.error,
   });
-
 
   ScanState copyWith({
     File? selectedFile,
@@ -34,56 +35,50 @@ class ScanState {
 }
 
 class ScanNotifier extends StateNotifier<ScanState> {
-  ScanNotifier() : super(ScanState());
+  ScanNotifier(this._ref) : super(ScanState());
+
+  final Ref _ref;
+
+  AppLocalizations get _l10n =>
+      lookupAppLocalizations(_ref.read(localeProvider));
 
   Future<void> pickAndProcessPdf() async {
     try {
-      // Marquer l'état comme "en cours de chargement"
       state = state.copyWith(isLoading: true, error: null);
 
-      // 1. Ouvrir le FilePicker pour sélectionner un PDF
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
 
       if (result == null || result.files.single.path == null) {
-        // Utilisateur a annulé le picker
         state = state.copyWith(isLoading: false);
         return;
       }
 
-      // 2. Récupérer le fichier sélectionné
       File pickedFile = File(result.files.single.path!);
 
-      // 3. Copier le fichier dans le répertoire local de l'app
-      // Raison: Permettre l'accès hors-ligne et la persistance
       final directory = await getApplicationDocumentsDirectory();
       final localPath = '${directory.path}/${result.files.single.name}';
       final savedFile = await pickedFile.copy(localPath);
 
-      // 4. Extraire le texte avec Syncfusion
-      // Note: Syncfusion est plus robuste que d'autres solutions
       final PdfDocument document =
           PdfDocument(inputBytes: await savedFile.readAsBytes());
       String text = PdfTextExtractor(document).extractText();
-      document.dispose(); // Libérer les ressources
+      document.dispose();
 
-      // 5. Mettre à jour l'état avec succès
       state = state.copyWith(
         selectedFile: savedFile,
         extractedText: text,
         isLoading: false,
       );
     } catch (e) {
-      // En cas d'erreur, capturer et afficher le message
       state = state.copyWith(
         isLoading: false,
-        error: "Erreur lors du traitement du PDF : ${e.toString()}",
+        error: _l10n.errorPdfProcessing(e.toString()),
       );
     }
   }
-
 
   void clearSelection() {
     state = ScanState();
@@ -91,5 +86,5 @@ class ScanNotifier extends StateNotifier<ScanState> {
 }
 
 final scanProvider = StateNotifierProvider<ScanNotifier, ScanState>((ref) {
-  return ScanNotifier();
+  return ScanNotifier(ref);
 });

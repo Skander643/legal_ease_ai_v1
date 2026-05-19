@@ -22,6 +22,7 @@ Application **Flutter** cross-platform permettant d’importer un contrat au for
 - [Installation et configuration](#installation-et-configuration)
 - [Lancement](#lancement)
 - [Parcours utilisateur](#parcours-utilisateur)
+- [Internationalisation (FR / EN)](#internationalisation-fr--en)
 - [Gestion d’état (Riverpod)](#gestion-détat-riverpod)
 - [Gestion des erreurs](#gestion-des-erreurs)
 - [Structure du dépôt](#structure-du-dépôt)
@@ -52,6 +53,7 @@ Legal-Ease AI répond à un besoin concret : rendre un document contractuel plus
 | **Analyse IA** | Requête HTTP vers l’API Groq (`llama-3.3-70b-versatile`) avec prompt juridique structuré. |
 | **Historique** | Liste temps réel des analyses ; consultation et suppression (Cloud Firestore). |
 | **Interface** | Material Design 3, thème clair/sombre, retours visuels (chargement, erreurs, snackbars). |
+| **Multilingue** | Français et anglais ; changement depuis le menu latéral, préférence sauvegardée localement. |
 
 ---
 
@@ -67,6 +69,7 @@ Legal-Ease AI répond à un besoin concret : rendre un document contractuel plus
 | **PDF** | file_picker, path_provider, syncfusion_flutter_pdf |
 | **Configuration** | flutter_dotenv |
 | **UX** | introduction_screen, flutter_markdown, google_sign_in |
+| **i18n** | flutter_localizations, intl, fichiers ARB (`lib/l10n/`) |
 
 ---
 
@@ -226,6 +229,24 @@ flutter build apk --release
 | 5 | Lancement de l’analyse IA |
 | 6 | Affichage du résumé (Markdown) |
 | 7 | Historique accessible depuis le menu latéral |
+| 8 | Menu latéral → **Langue** : Français / English |
+
+---
+
+## Internationalisation (FR / EN)
+
+L’application prend en charge **deux langues** : français (par défaut) et anglais.
+
+| Élément | Détail |
+|---------|--------|
+| **Fichiers de traduction** | `lib/l10n/app_fr.arb`, `lib/l10n/app_en.arb` |
+| **Génération** | `flutter gen-l10n` (automatique via `flutter: generate: true`) |
+| **Accès dans l’UI** | `context.l10n` (`lib/core/extensions/l10n_extension.dart`) |
+| **État global** | `localeProvider` (Riverpod) + `SharedPreferences` (`app_locale`) |
+| **Sélecteur** | Tuile « Langue » dans le drawer (`LanguageSelectorTile`) |
+| **IA** | Prompt système Groq adapté à la langue sélectionnée |
+
+Pour ajouter une chaîne : éditer les deux fichiers `.arb`, puis exécuter `flutter gen-l10n`.
 
 ---
 
@@ -240,6 +261,7 @@ flutter build apk --release
 | `analysisProvider` | `AsyncNotifierProvider` | État async de l’appel Groq |
 | `historyProvider` | `StreamProvider` | Flux Firestore des analyses |
 | `historyControllerProvider` | `Provider` | Ajout et suppression d’entrées |
+| `localeProvider` | `StateNotifierProvider` | Locale active (fr / en) |
 
 ---
 

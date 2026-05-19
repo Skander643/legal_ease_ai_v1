@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../models/history_item.dart';
 import '../providers/history_provider.dart';
@@ -14,6 +15,7 @@ class HistoryItemTile extends StatelessWidget {
       '${item.date.day}/${item.date.month}/${item.date.year}';
 
   void _showSummaryDialog(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -30,7 +32,7 @@ class HistoryItemTile extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -41,6 +43,8 @@ class HistoryItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+        final l10n = context.l10n;
+
         return Dismissible(
           key: ValueKey('dismiss_${item.id}'),
           direction: DismissDirection.endToStart,
@@ -52,7 +56,7 @@ class HistoryItemTile extends StatelessWidget {
           ),
           onDismissed: (_) {
             ref.read(historyControllerProvider).deleteHistory(item.id);
-            SnackbarHelper.showInfo(context, 'Analyse supprimée');
+            SnackbarHelper.showInfo(context, l10n.analysisDeleted);
           },
           child: Card(
             elevation: 2,

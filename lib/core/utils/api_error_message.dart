@@ -1,48 +1,51 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-String formatApiErrorMessage(Object error) {
+String formatApiErrorMessage(Object error, AppLocalizations l10n) {
   if (error is DioException) {
     switch (error.type) {
       case DioExceptionType.connectionError:
-        return 'Pas de connexion internet. Vérifiez votre réseau Wi‑Fi ou données mobiles, puis réessayez.';
+        return l10n.errorNoInternet;
 
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
-        return 'Connexion trop lente ou expirée. Vérifiez votre internet et réessayez.';
+        return l10n.errorConnectionTimeout;
 
       case DioExceptionType.receiveTimeout:
-        return 'Le serveur met trop de temps à répondre. Réessayez dans quelques instants.';
+        return l10n.errorReceiveTimeout;
 
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
         if (statusCode == 401 || statusCode == 403) {
-          return 'Clé API invalide ou refusée. Vérifiez GROQ_API_KEY dans le fichier .env.';
+          return l10n.errorInvalidApiKey;
         }
         if (statusCode != null && statusCode >= 500) {
-          return 'Le service d\'analyse est temporairement indisponible. Réessayez plus tard.';
+          return l10n.errorServerUnavailable;
         }
-        return 'Erreur du serveur (code ${statusCode ?? 'inconnu'}). Réessayez.';
+        return l10n.errorServerCode('${statusCode ?? 'unknown'}');
 
       case DioExceptionType.cancel:
-        return 'Analyse annulée.';
+        return l10n.errorAnalysisCancelled;
 
       case DioExceptionType.badCertificate:
-        return 'Connexion sécurisée impossible. Vérifiez la date/heure de l\'appareil.';
+        return l10n.errorBadCertificate;
 
       case DioExceptionType.unknown:
         final message = (error.message ?? '').toLowerCase();
         if (_looksLikeOffline(message, error.error)) {
-          return 'Pas de connexion internet. Vérifiez votre réseau Wi‑Fi ou données mobiles, puis réessayez.';
+          return l10n.errorNoInternet;
         }
-        return 'Erreur réseau inattendue. Vérifiez votre connexion et réessayez.';
+        return l10n.errorUnexpectedNetwork;
     }
   }
 
   final text = error.toString().replaceFirst('Exception: ', '');
-  if (text.contains('GROQ_API_KEY') || text.contains('Clé API')) {
+  if (text.contains('GROQ_API_KEY') ||
+      text.contains('Clé API') ||
+      text.contains('API key')) {
     return text;
   }
-  return 'Erreur d\'analyse : $text';
+  return l10n.errorAnalysisGeneric(text);
 }
 
 bool _looksLikeOffline(String message, Object? innerError) {
@@ -55,9 +58,11 @@ bool _looksLikeOffline(String message, Object? innerError) {
     'no address associated',
     'network is unreachable',
   ];
+
   if (offlineHints.any(message.contains)) {
     return true;
   }
+
   final inner = innerError?.toString().toLowerCase() ?? '';
   return offlineHints.any(inner.contains);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 import 'package:legal_ease_ai/core/providers/theme_provider.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import 'package:legal_ease_ai/features/scan/widgets/main_drawer.dart';
@@ -15,11 +16,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+        final l10n = context.l10n;
         final scanState = ref.watch(scanProvider);
         final user = ref.watch(authStateProvider).value;
-        final firstName = user?.displayName?.split(' ').first ?? 'Utilisateur';
+        final firstName =
+            user?.displayName?.split(' ').first ?? l10n.userDefault;
 
-        // Show error snackbar via SnackbarHelper
         ref.listen<ScanState>(scanProvider, (previous, next) {
           if (next.error != null) {
             SnackbarHelper.showError(context, next.error!);
@@ -28,19 +30,20 @@ class HomeScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Mes Contrats'),
+            title: Text(l10n.myContracts),
             actions: [
               IconButton(
                 icon: const Icon(Icons.logout),
                 onPressed: () => ref.read(authControllerProvider).signOut(),
-                tooltip: 'Se déconnecter',
+                tooltip: l10n.logout,
               ),
               IconButton(
                 icon: Icon(Theme.of(context).brightness == Brightness.dark
                     ? Icons.light_mode
                     : Icons.dark_mode),
-                onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
-                tooltip: 'Changer le thème',
+                onPressed: () =>
+                    ref.read(themeProvider.notifier).toggleTheme(),
+                tooltip: l10n.toggleTheme,
               ),
             ],
           ),
@@ -50,10 +53,8 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-
-                // Welcome message
                 Text(
-                  'Salut $firstName ',
+                  l10n.helloUser(firstName),
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.deepPurple,
@@ -61,45 +62,38 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Que souhaitez-vous analyser aujourd'hui ?",
+                  l10n.whatToAnalyzeToday,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge
                       ?.copyWith(color: Colors.grey),
                 ),
-
                 const SizedBox(height: 30),
-
-                // Statistics overview
                 const StatisticsChart(),
                 const SizedBox(height: 24),
-
-                // Upload card using CustomCard
                 CustomCard(
                   icon: Icons.picture_as_pdf,
-                  title: 'Analysez un nouveau contrat',
+                  title: l10n.analyzeNewContract,
                   elevation: 4,
                   padding: const EdgeInsets.all(24),
                   child: Center(
                     child: scanState.isLoading
-                        ? const LoadingSpinner(
+                        ? LoadingSpinner(
                             fullScreen: false,
-                            message: 'Extraction du texte...',
+                            message: l10n.extractingText,
                             spinnerSize: 36,
                           )
                         : CustomButton(
-                            label: 'Sélectionner un PDF',
-                            onPressed: () =>
-                                ref.read(scanProvider.notifier).pickAndProcessPdf(),
+                            label: l10n.selectPdf,
+                            onPressed: () => ref
+                                .read(scanProvider.notifier)
+                                .pickAndProcessPdf(),
                             icon: Icons.upload_file,
                             fullWidth: false,
                           ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // Animated switcher: file selected vs. no file
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -108,12 +102,11 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: scanState.selectedFile != null
                       ? const SelectedFilePreview(key: ValueKey('has_file'))
-                      : const EmptyStateWidget(
-                          key: ValueKey('no_file'),
+                      : EmptyStateWidget(
+                          key: const ValueKey('no_file'),
                           icon: Icons.insert_drive_file_outlined,
-                          title: 'Aucun document sélectionné',
-                          description:
-                              'Sélectionnez un PDF ci-dessus pour commencer l\'analyse.',
+                          title: l10n.noDocumentSelected,
+                          description: l10n.selectPdfToStart,
                           fullScreen: false,
                         ),
                 ),

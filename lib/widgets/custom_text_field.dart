@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -97,7 +98,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         onPressed: widget.onSuffixIconPressed,
                       )
                     : null,
-            hintText: 'Entrez ${widget.label.toLowerCase()}',
+            hintText: context.l10n.enterFieldHint(widget.label.toLowerCase()),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
             ),

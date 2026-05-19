@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart';
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import '../providers/scan_provider.dart';
-
 
 class SelectedFilePreview extends StatelessWidget {
   const SelectedFilePreview({super.key});
@@ -12,18 +12,18 @@ class SelectedFilePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+        final l10n = context.l10n;
         final scanState = ref.watch(scanProvider);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // File name row with clear action
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Fichier sélectionné :',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  l10n.selectedFile,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.clear, color: Colors.red),
@@ -34,11 +34,9 @@ class SelectedFilePreview extends StatelessWidget {
             ),
             Text(scanState.selectedFile!.path.split('/').last),
             const SizedBox(height: 16),
-
-            // Extracted text preview
-            const Text(
-              'Texte extrait (Aperçu) :',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              l10n.extractedTextPreview,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Container(
@@ -57,8 +55,6 @@ class SelectedFilePreview extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Launch analysis button
             FilledButton(
               onPressed: () {
                 ref
@@ -69,7 +65,7 @@ class SelectedFilePreview extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const ResultScreen()),
                 );
               },
-              child: const Text("Lancer l'analyse IA"),
+              child: Text(l10n.launchAiAnalysis),
             ),
           ],
         );

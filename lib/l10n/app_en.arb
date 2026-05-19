@@ -1,0 +1,130 @@
+{
+  "@@locale": "en",
+  "appTitle": "Legal-Ease AI",
+  "myContracts": "My Contracts",
+  "helloUser": "Hi {name} 👋",
+  "@helloUser": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "userDefault": "User",
+  "whatToAnalyzeToday": "What would you like to analyze today?",
+  "analyzeNewContract": "Analyze a new contract",
+  "selectPdf": "Select a PDF",
+  "extractingText": "Extracting text...",
+  "noDocumentSelected": "No document selected",
+  "selectPdfToStart": "Select a PDF above to start the analysis.",
+  "statisticsOverview": "Your analysis overview",
+  "contractsCount": "Contracts",
+  "logout": "Log out",
+  "toggleTheme": "Toggle theme",
+  "loginTitle": "Sign in - Legal-Ease AI",
+  "welcome": "Welcome",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm password",
+  "signIn": "Sign in",
+  "signUp": "Sign up",
+  "noAccountSignUp": "Don't have an account? Sign up",
+  "signInWithGoogle": "Sign in with Google",
+  "googleSignInInProgress": "Signing in with Google...",
+  "createAccount": "Create account",
+  "fillAllFields": "Please fill in all fields",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "authErrorTitle": "Authentication error: {error}",
+  "@authErrorTitle": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "authErrorUserNotFound": "No user found for this email.",
+  "authErrorWrongPassword": "Incorrect password.",
+  "authErrorEmailInUse": "This email is already in use.",
+  "authErrorWeakPassword": "Password is too weak (minimum 6 characters).",
+  "authErrorInvalidEmail": "Invalid email address.",
+  "authErrorUnknown": "Unknown error",
+  "authErrorGoogle": "Google sign-in error: {error}",
+  "@authErrorGoogle": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "onboardingWelcomeTitle": "Welcome to Legal-Ease AI",
+  "onboardingWelcomeBody": "Your smart assistant to understand complex contracts at a glance.",
+  "onboardingScanTitle": "1. Scan a contract",
+  "onboardingScanBody": "Simply import a PDF from your phone. We extract the text for you.",
+  "onboardingAiTitle": "2. AI analyzes for you",
+  "onboardingAiBody": "Our AI detects key clauses and warns you about potential risks.",
+  "onboardingSaveTitle": "3. Save and share",
+  "onboardingSaveBody": "Find your analyses offline and export them to share with others.",
+  "onboardingSkip": "Skip",
+  "onboardingDone": "Get started",
+  "myProfile": "My profile",
+  "history": "History",
+  "previousAnalyses": "Your previous analyses",
+  "noEmail": "No email",
+  "historyTitle": "Analysis history",
+  "loadingHistory": "Loading history...",
+  "noHistory": "No history available",
+  "historyEmptyHint": "Your analyses will appear here.",
+  "analysisDeleted": "Analysis deleted",
+  "close": "Close",
+  "selectedFile": "Selected file:",
+  "extractedTextPreview": "Extracted text (preview):",
+  "launchAiAnalysis": "Run AI analysis",
+  "analysisResultTitle": "Analysis result",
+  "aiAnalyzing": "AI is analyzing your contract...\nThis may take a few seconds.",
+  "noResult": "No result",
+  "noResultDescription": "The analysis did not produce a result.",
+  "simplifiedSummary": "Simplified summary",
+  "analyzedContract": "Analyzed contract",
+  "errorTitle": "Error",
+  "retry": "Retry",
+  "loading": "Loading...",
+  "enterFieldHint": "Enter {label}",
+  "@enterFieldHint": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "language": "Language",
+  "languageFrench": "Français",
+  "languageEnglish": "English",
+  "errorNoInternet": "No internet connection. Check Wi‑Fi or mobile data, then try again.",
+  "errorConnectionTimeout": "Connection timed out. Check your internet and try again.",
+  "errorReceiveTimeout": "The server is taking too long to respond. Try again shortly.",
+  "errorInvalidApiKey": "Invalid or rejected API key. Check GROQ_API_KEY in your .env file.",
+  "errorServerUnavailable": "The analysis service is temporarily unavailable. Try again later.",
+  "errorServerCode": "Server error (code {code}). Please try again.",
+  "@errorServerCode": {
+    "placeholders": {
+      "code": {"type": "String"}
+    }
+  },
+  "errorAnalysisCancelled": "Analysis cancelled.",
+  "errorBadCertificate": "Secure connection failed. Check your device's date and time.",
+  "errorUnexpectedNetwork": "Unexpected network error. Check your connection and try again.",
+  "errorAnalysisGeneric": "Analysis error: {message}",
+  "@errorAnalysisGeneric": {
+    "placeholders": {
+      "message": {"type": "String"}
+    }
+  },
+  "errorGroqApiKeyMissing": "Groq API key not found. Check your .env file.",
+  "errorNoGroqResponse": "No response from the Groq API.",
+  "errorGroqHttp": "API error: {code}",
+  "@errorGroqHttp": {
+    "placeholders": {
+      "code": {"type": "int"}
+    }
+  },
+  "errorPdfProcessing": "Error processing PDF: {details}",
+  "@errorPdfProcessing": {
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "aiSystemPrompt": "You are a legal document analysis expert. Summarize the following contract in 100-300 words, highlighting key terms, obligations, and risks.",
+  "aiUserPromptPrefix": "Please analyze this contract:\n\n"
+}

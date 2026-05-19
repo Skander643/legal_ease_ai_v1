@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
+import 'package:legal_ease_ai/core/utils/auth_error_message.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/auth_provider.dart';
 
@@ -25,18 +27,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister(WidgetRef ref) async {
+    final l10n = context.l10n;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      SnackbarHelper.showWarning(context, 'Veuillez remplir tous les champs');
+      SnackbarHelper.showWarning(context, l10n.fillAllFields);
       return;
     }
 
     if (password != confirmPassword) {
-      SnackbarHelper.showError(
-          context, 'Les mots de passe ne correspondent pas');
+      SnackbarHelper.showError(context, l10n.passwordsDoNotMatch);
       return;
     }
 
@@ -49,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackbarHelper.showError(context, e.toString());
+        SnackbarHelper.showError(context, formatAuthErrorMessage(e, l10n));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -58,50 +60,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Consumer(
       builder: (context, ref, child) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Créer un compte')),
+          appBar: AppBar(title: Text(l10n.createAccount)),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-
-                // Email field
                 CustomTextField(
-                  label: 'Email',
+                  label: l10n.email,
                   controller: _emailController,
                   prefixIcon: Icons.email,
                   keyboardType: TextInputType.emailAddress,
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-
-                // Password field
                 CustomTextField(
-                  label: 'Mot de passe',
+                  label: l10n.password,
                   controller: _passwordController,
                   prefixIcon: Icons.lock,
                   obscureText: true,
                   isRequired: true,
                 ),
                 const SizedBox(height: 16),
-
-                // Confirm password field
                 CustomTextField(
-                  label: 'Confirmer le mot de passe',
+                  label: l10n.confirmPassword,
                   controller: _confirmPasswordController,
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
                   isRequired: true,
                 ),
                 const SizedBox(height: 32),
-
-                // Register button with loading state
                 CustomButton(
-                  label: "S'inscrire",
+                  label: l10n.signUp,
+                  loadingLabel: l10n.loading,
                   onPressed: () => _handleRegister(ref),
                   isLoading: _isLoading,
                 ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'auth_wrapper.dart'; // Pour rediriger vers le login/home ensuite
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
+import 'auth_wrapper.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,13 +14,10 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final introKey = GlobalKey<IntroductionScreenState>();
 
-  // Fonction appelée quand l'utilisateur termine le tutoriel
   void _onIntroEnd(BuildContext context) async {
-    // 1. Sauvegarder dans le téléphone que l'onboarding est terminé
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_complete', true);
 
-    // 2. Naviguer vers l'AuthWrapper (Login ou Home selon la connexion)
     if (context.mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const AuthWrapper()),
@@ -29,6 +27,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     const pageDecoration = PageDecoration(
       titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
       bodyTextStyle: TextStyle(fontSize: 19.0),
@@ -42,36 +42,46 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       globalBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
       pages: [
         PageViewModel(
-          title: "Bienvenue sur Legal-Ease AI",
-          body: "Votre assistant intelligent pour comprendre les contrats complexes en un clin d'œil.",
-          image: const Center(child: Icon(Icons.gavel, size: 100, color: Colors.deepPurple)),
+          title: l10n.onboardingWelcomeTitle,
+          body: l10n.onboardingWelcomeBody,
+          image: const Center(
+            child: Icon(Icons.gavel, size: 100, color: Colors.deepPurple),
+          ),
           decoration: pageDecoration,
         ),
         PageViewModel(
-          title: "1. Scannez un contrat",
-          body: "Importez simplement un fichier PDF depuis votre téléphone. Nous nous occupons d'extraire le texte.",
-          image: const Center(child: Icon(Icons.document_scanner, size: 100, color: Colors.deepPurple)),
+          title: l10n.onboardingScanTitle,
+          body: l10n.onboardingScanBody,
+          image: const Center(
+            child: Icon(Icons.document_scanner, size: 100, color: Colors.deepPurple),
+          ),
           decoration: pageDecoration,
         ),
         PageViewModel(
-          title: "2. L'IA analyse pour vous",
-          body: "Notre intelligence artificielle détecte les clauses clés et vous avertit des risques potentiels.",
-          image: const Center(child: Icon(Icons.memory, size: 100, color: Colors.deepPurple)),
+          title: l10n.onboardingAiTitle,
+          body: l10n.onboardingAiBody,
+          image: const Center(
+            child: Icon(Icons.memory, size: 100, color: Colors.deepPurple),
+          ),
           decoration: pageDecoration,
         ),
         PageViewModel(
-          title: "3. Sauvegardez et Partagez",
-          body: "Retrouvez vos analyses hors-ligne et exportez-les en PDF pour les partager avec vos proches.",
-          image: const Center(child: Icon(Icons.share, size: 100, color: Colors.deepPurple)),
+          title: l10n.onboardingSaveTitle,
+          body: l10n.onboardingSaveBody,
+          image: const Center(
+            child: Icon(Icons.share, size: 100, color: Colors.deepPurple),
+          ),
           decoration: pageDecoration,
         ),
       ],
       onDone: () => _onIntroEnd(context),
-      onSkip: () => _onIntroEnd(context), // Autorise à passer le tuto
+      onSkip: () => _onIntroEnd(context),
       showSkipButton: true,
-      skip: const Text('Passer', style: TextStyle(fontWeight: FontWeight.w600)),
+      skip: Text(l10n.onboardingSkip,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
       next: const Icon(Icons.arrow_forward),
-      done: const Text('Commencer', style: TextStyle(fontWeight: FontWeight.w600)),
+      done: Text(l10n.onboardingDone,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
       dotsDecorator: DotsDecorator(
         size: const Size.square(10.0),
         activeSize: const Size(20.0, 10.0),

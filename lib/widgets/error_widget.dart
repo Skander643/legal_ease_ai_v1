@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:legal_ease_ai/core/extensions/l10n_extension.dart';
 
 class ErrorDisplayWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
+  final String? retryLabel;
   final bool fullScreen;
   final IconData icon;
   final Color? iconColor;
@@ -11,6 +13,7 @@ class ErrorDisplayWidget extends StatelessWidget {
     super.key,
     required this.message,
     this.onRetry,
+    this.retryLabel,
     this.fullScreen = true,
     this.icon = Icons.error_outline,
     this.iconColor,
@@ -18,7 +21,8 @@ class ErrorDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final widget = Center(
+    final l10n = context.l10n;
+    final content = Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -31,7 +35,7 @@ class ErrorDisplayWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '❌ Erreur',
+              l10n.errorTitle,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
@@ -45,7 +49,7 @@ class ErrorDisplayWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Réessayer'),
+                label: Text(retryLabel ?? l10n.retry),
               ),
             ],
           ],
@@ -55,8 +59,8 @@ class ErrorDisplayWidget extends StatelessWidget {
 
     return fullScreen
         ? Scaffold(
-            body: widget,
+            body: content,
           )
-        : widget;
+        : content;
   }
 }
