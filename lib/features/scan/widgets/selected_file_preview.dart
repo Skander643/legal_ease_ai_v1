@@ -4,14 +4,7 @@ import 'package:legal_ease_ai/features/analysis/presentation/result_screen.dart'
 import 'package:legal_ease_ai/features/analysis/providers/analysis_provider.dart';
 import '../providers/scan_provider.dart';
 
-/// SelectedFilePreview
-///
-/// Reusable feature-level widget shown after a PDF is picked.
-///
-/// Features:
-/// - Displays the file name with a clear button
-/// - Shows an extracted-text preview (scrollable, capped at 500 chars)
-/// - "Lancer l'analyse IA" button that triggers analysis and navigates to [ResultScreen]
+
 class SelectedFilePreview extends StatelessWidget {
   const SelectedFilePreview({super.key});
 

@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/history_provider.dart';
 
-/// StatisticsChart
-///
-/// Displays a quick statistics overview for the user's analysis history.
-/// Uses [InfoCard] from the shared widget library to avoid duplication.
+
 class StatisticsChart extends StatelessWidget {
   const StatisticsChart({super.key});
 

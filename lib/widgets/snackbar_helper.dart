@@ -1,20 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// SnackbarHelper
-///
-/// Utility class for showing consistent snackbar messages across the app.
-///
-/// Features:
-/// - Success, error, info, warning types
-/// - Automatic color coding
-/// - Customizable duration
-/// - Icon support
-///
-/// Usage:
-/// ```dart
-/// SnackbarHelper.showSuccess(context, 'Contrat analysé avec succès');
-/// SnackbarHelper.showError(context, 'Erreur lors de l\'analyse');
-/// ```
 class SnackbarHelper {
   static void showSuccess(
     BuildContext context,

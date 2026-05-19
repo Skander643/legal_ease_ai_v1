@@ -2,17 +2,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:legal_ease_ai/core/utils/api_error_message.dart';
 import '../models/analysis_result.dart';
 
-/// AnalysisNotifier
-///
-/// Responsable de la gestion de l'état de l'analyse des contrats.
-/// Communique avec l'API NVIDIA Llama Nemotron Super pour obtenir des analyses juridiques.
-///
-/// État :
-/// - Loading: Lors de l'appel API
-/// - Data: Lorsque l'analyse est réussie
-/// - Error: En cas d'erreur réseau ou validation
 class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
   // Instance HTTP client (Dio) pour les requêtes API
   final Dio _dio = Dio();
@@ -23,42 +15,25 @@ class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
     return null;
   }
 
-  /// analyzeContract
-  ///
-  /// Envoie le texte extrait du PDF à l'API NVIDIA pour une analyse juridique.
-  ///
-  /// Paramètres:
-  /// - extractedText: Texte complet du contrat (avant limitation)
-  ///
-  /// Processus:
-  /// 1. Limiter le texte à 4000 caractères (limite de tokens approximative)
-  /// 2. Préparer la requête avec les paramètres d'IA
-  /// 3. Appeler l'API NVIDIA avec authentification Bearer
-  /// 4. Parser la réponse et créer AnalysisResult
-  /// 5. Gérer les erreurs 
   Future<void> analyzeContract(String extractedText) async {
     // Définir l'état à "chargement"
     state = const AsyncValue.loading();
 
     try {
       // 1. Récupérer la clé API depuis le fichier .env
-      final apiKey = dotenv.env['NVIDIA_API_KEY'];
+      final apiKey = dotenv.env['GROQ_API_KEY'];
       if (apiKey == null || apiKey.isEmpty) {
         throw Exception(
-            "Clé API NVIDIA introuvable. Vérifiez votre fichier .env.");
+            "Clé API Groq introuvable. Vérifiez votre fichier .env.");
       }
 
-      // 2. Limiter le texte pour respecter les limites de tokens (~1024 tokens)
-      // Approximation: 1 token ≈ 4 caractères
       final textToAnalyze = extractedText.length > 4000
           ? extractedText.substring(0, 4000)
           : extractedText;
 
-      // 3. Configurer et envoyer la requête à l'API NVIDIA
-      // Endpoint: https://integrate.api.nvidia.com/v1/chat/completions
-      // Modèle: nvidia/llama-3.3-nemotron-super-49b-v1
+      // Endpoint: https://api.groq.com/openai/v1/chat/completions
       final response = await _dio.post(
-        'https://integrate.api.nvidia.com/v1/chat/completions',
+        'https://api.groq.com/openai/v1/chat/completions',
         options: Options(
           headers: {
             'Authorization': 'Bearer $apiKey',
@@ -69,8 +44,8 @@ class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
           receiveTimeout: const Duration(seconds: 60),
         ),
         data: {
-          // Configuration du modèle d'IA
-          "model": "nvidia/llama-3.3-nemotron-super-49b-v1",
+          // Configuration du modèle d'IA disponible sur GroqCloud
+          "model": "llama-3.3-70b-versatile",
 
           // Messages pour le modèle (système + utilisateur)
           "messages": [
@@ -96,7 +71,7 @@ class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
 
       // 4. Parser la réponse et créer l'état de résultat
       if (response.statusCode == 200 && response.data != null) {
-        // Extraire l'array 'choices' de la réponse NVIDIA
+        // Extraire l'array 'choices' de la réponse Groq
         final choices = response.data['choices'] as List<dynamic>;
 
         if (choices.isNotEmpty) {
@@ -107,16 +82,14 @@ class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
           state = AsyncValue.data(AnalysisResult.fromRawText(summaryText));
         } else {
           // Erreur: pas de réponse du modèle
-          throw Exception("Erreur: Aucune réponse de l'API NVIDIA");
+          throw Exception("Erreur: Aucune réponse de l'API Groq");
         }
       } else {
         // Erreur HTTP
         throw Exception("Erreur de l'API: ${response.statusCode}");
       }
     } catch (e, stack) {
-      // Capturer toute erreur et mettre à jour l'état avec le message d'erreur
-      // stack est utilisé pour les logs de débogage
-      state = AsyncValue.error("Erreur d'analyse : ${e.toString()}", stack);
+      state = AsyncValue.error(formatApiErrorMessage(e), stack);
     }
   }
 
@@ -129,17 +102,6 @@ class AnalysisNotifier extends AsyncNotifier<AnalysisResult?> {
   }
 }
 
-/// analysisProvider
-///
-/// Provider Riverpod qui expose le AnalysisNotifier.
-/// Utilisé partout dans l'app via ref.watch() ou ref.read()
-///
-/// Exemple d'utilisation:
-/// ```dart
-/// // Dans un widget ConsumerWidget
-/// final analysisState = ref.watch(analysisProvider);
-/// await ref.read(analysisProvider.notifier).analyzeContract(text);
-/// ```
 final analysisProvider =
     AsyncNotifierProvider<AnalysisNotifier, AnalysisResult?>(() {
   return AnalysisNotifier();

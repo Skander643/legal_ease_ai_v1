@@ -1,265 +1,296 @@
-# Legal-Ease AI : Simplificateur de Contrats 📄🤖
+# Legal-Ease AI
 
-## 📝 Description du projet
-Legal-Ease AI est une application mobile Flutter innovante qui permet aux utilisateurs de scanner des documents juridiques (PDF) et d'obtenir instantanément un résumé clair et structuré grâce à l'Intelligence Artificielle. Conçue pour démocratiser la compréhension des contrats, l'application identifie les clauses clés et met en évidence les risques potentiels.
+<p align="center">
+  <strong>Assistant mobile intelligent pour l’analyse et la compréhension de contrats juridiques</strong>
+</p>
 
-## ✨ Fonctionnalités Principales (MVP)
-- **Authentification Sécurisée :** Gestion des utilisateurs avec persistance de session (Firebase Auth + Google SSO).
-- **Gestion de Documents :** Importation de fichiers PDF depuis l'appareil, extraction de texte locale avec Syncfusion.
-- **Analyse IA (NVIDIA Llama 3.3 Nemotron Super) :** Intégration de l'API NVIDIA pour résumer les textes juridiques complexes, extraire les clauses clés et identifier les risques.
-- **Historique Cloud :** Stockage des analyses dans Firestore avec accès multi-appareils et synchronisation en temps réel.
-- **Thème Dynamique :** Support natif Material 3 avec adaptation automatique au mode clair/sombre du système.
-- **Export & Partage :** Export des rapports en PDF et partage via les applications natives.
+Application **Flutter** cross-platform permettant d’importer un contrat au format PDF, d’en extraire le texte localement, de générer un résumé juridique via un **LLM** hébergé sur **Groq Cloud**, et de conserver l’historique des analyses par utilisateur dans **Firebase Firestore**.
 
-## 🏗 Architecture et Choix Techniques
-Ce projet respecte les principes du **Clean Code** et une architecture modulaire par fonctionnalités (Feature-First) :
+> Projet réalisé dans le cadre du module **Développement mobile cross-platform**.
 
-### Structuration des dossiers
+---
+
+## Table des matières
+
+- [Vue d’ensemble](#vue-densemble)
+- [Fonctionnalités](#fonctionnalités)
+- [Stack technique](#stack-technique)
+- [Architecture](#architecture)
+- [Intégration IA (Groq Cloud)](#intégration-ia-groq-cloud)
+- [Persistance des données](#persistance-des-données)
+- [Prérequis](#prérequis)
+- [Installation et configuration](#installation-et-configuration)
+- [Lancement](#lancement)
+- [Parcours utilisateur](#parcours-utilisateur)
+- [Gestion d’état (Riverpod)](#gestion-détat-riverpod)
+- [Gestion des erreurs](#gestion-des-erreurs)
+- [Structure du dépôt](#structure-du-dépôt)
+- [Limites connues](#limites-connues)
+- [Licence et usage académique](#licence-et-usage-académique)
+
+---
+
+## Vue d’ensemble
+
+Legal-Ease AI répond à un besoin concret : rendre un document contractuel plus accessible sans expertise juridique préalable. Le flux applicatif suit une chaîne claire :
+
+1. **Authentification** de l’utilisateur (Firebase).
+2. **Import** d’un fichier PDF depuis l’appareil.
+3. **Extraction** du texte en local (aucun envoi du PDF brut vers l’API).
+4. **Analyse** du texte par un modèle de langage via l’API Groq.
+5. **Persistance** du résumé dans l’historique cloud personnel.
+
+---
+
+## Fonctionnalités
+
+| Module | Description |
+|--------|-------------|
+| **Onboarding** | Présentation guidée au premier lancement ; état mémorisé via `SharedPreferences`. |
+| **Authentification** | Connexion par email/mot de passe et **Single Sign-On Google** (Firebase Authentication). |
+| **Scan & extraction** | Sélection PDF, copie dans le stockage applicatif, extraction du texte (Syncfusion PDF). |
+| **Analyse IA** | Requête HTTP vers l’API Groq (`llama-3.3-70b-versatile`) avec prompt juridique structuré. |
+| **Historique** | Liste temps réel des analyses ; consultation et suppression (Cloud Firestore). |
+| **Interface** | Material Design 3, thème clair/sombre, retours visuels (chargement, erreurs, snackbars). |
+
+---
+
+## Stack technique
+
+| Couche | Technologies |
+|--------|----------------|
+| **Frontend** | Flutter 3.x, Material 3 |
+| **État** | Riverpod (`Provider`, `StateNotifierProvider`, `StreamProvider`, `AsyncNotifierProvider`) |
+| **Backend & auth** | Firebase Core, Firebase Auth, Cloud Firestore |
+| **IA / LLM** | Groq Cloud API (compatible OpenAI Chat Completions) |
+| **HTTP** | Dio |
+| **PDF** | file_picker, path_provider, syncfusion_flutter_pdf |
+| **Configuration** | flutter_dotenv |
+| **UX** | introduction_screen, flutter_markdown, google_sign_in |
+
+---
+
+## Architecture
+
+Le projet adopte une organisation **feature-first** : chaque domaine métier regroupe ses écrans, providers, modèles et widgets dédiés.
+
 ```
 lib/
-├── core/                  # Composants transversaux
-│   ├── providers/        # Theme provider
-│   ├── constants/        # Constantes de l'app
-│   ├── network/          # Configuration API
-│   └── utils/            # Utilitaires divers
-├── features/             # Modules indépendants (Feature-First)
-│   ├── auth/            # Authentification Firebase
-│   │   ├── providers/
-│   │   └── presentation/
-│   ├── scan/            # Extraction PDF
-│   │   ├── providers/
-│   │   ├── presentation/
-│   │   └── widgets/
-│   ├── analysis/        # Analyse IA
-│   │   ├── providers/
-│   │   ├── presentation/
-│   │   └── models/
-│   └── history/         # Gestion de l'historique
-│       ├── providers/
-│       ├── presentation/
-│       ├── models/
-│       └── widgets/
-├── models/              # Modèles partagés
-└── widgets/             # Widgets réutilisables
+├── main.dart                 # Point d’entrée, Firebase, ProviderScope
+├── firebase_options.dart     # Configuration Firebase générée
+├── core/
+│   ├── providers/            # Providers transverses (ex. thème)
+│   └── utils/                # Utilitaires (ex. formatage erreurs API)
+├── features/
+│   ├── auth/                 # Onboarding, login, register, AuthWrapper
+│   ├── scan/                 # Sélection PDF, extraction texte
+│   ├── analysis/             # Appel Groq, affichage résultat
+│   └── history/              # Historique Firestore
+└── widgets/                  # Design system réutilisable
 ```
 
-### Stack Technologique
-- **State Management :** `flutter_riverpod` (StreamProvider, AsyncNotifierProvider)
-- **Authentification :** Firebase Auth + Google Sign-In (SSO)
-- **API IA :** NVIDIA Llama 3.3 Nemotron Super (`dio` avec gestion des timeouts: 30s send, 60s receive)
-- **Base de données Cloud :** Cloud Firestore (historique utilisateur)
-- **Stockage Local :** SharedPreferences (préférences), Hive (local cache)
-- **Extraction PDF :** Syncfusion Flutter PDF (extraction de texte)
-- **Export :** PDF generation avec Syncfusion + share_plus
+**Principes appliqués**
 
-## 🚀 Installation et Lancement
-
-### Prérequis
-- Flutter SDK (Version stable ^3.3.4)
-- Un compte NVIDIA Build (pour la clé API NVIDIA)
-- Firebase project configuré
-
-### Étapes d'Installation
-
-1. **Cloner le dépôt :**
-   ```bash
-   git clone [https://github.com/votre-nom/legal_ease_ai.git](https://github.com/votre-nom/legal_ease_ai.git)
-   cd legal_ease_ai
-   ```
-
-2. **Installer les dépendances Flutter :**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Configurer les variables d'environnement (.env) :**
-   
-   Créez un fichier `.env` à la racine du projet :
-   ```env
-   # NVIDIA Llama 3.3 Nemotron Super API
-   NVIDIA_API_KEY=your_nvidia_api_key_here
-   ```
-   
-   **Comment obtenir la clé API NVIDIA :**
-   - Allez sur [NVIDIA API Catalog](https://build.nvidia.com)
-   - Créez un compte ou connectez-vous
-   - Accédez à "Llama 3.3 Nemotron Super 49B"
-   - Générez une clé API
-   - Copiez la clé et collez-la dans `.env`
-   
-   **Spécifications du modèle NVIDIA :**
-   - Modèle: `nvidia/llama-3.3-nemotron-super-49b-v1`
-   - Endpoint: `https://integrate.api.nvidia.com/v1/chat/completions`
-   - Format: Chat Completion API
-
-4. **Configurer Firebase (Optional pour développement local) :**
-   ```bash
-   flutterfire configure
-   ```
-
-5. **Lancer l'application :**
-   ```bash
-   flutter run
-   ```
-   
-   Ou avec un device spécifique :
-   ```bash
-   flutter run -d <device_id>
-   ```
-
-### Configuration Firebase (Production)
-1. Créer un Firebase Project sur [console.firebase.google.com](https://console.firebase.google.com)
-2. Activer Firebase Authentication (Email/Password + Google Sign-In)
-3. Utiliser `flutterfire configure` pour lier le projet
-4. Les fichiers `google-services.json` (Android) et `GoogleService-Info.plist` (iOS) seront générés
+- Séparation **UI** (`presentation/`, `widgets/`) et **logique** (`providers/`).
+- Widgets d’écran en `StatelessWidget` / `StatefulWidget` ; accès Riverpod via `Consumer`.
+- Composants partagés centralisés dans `lib/widgets/` pour limiter la duplication.
 
 ---
 
-## 📐 Architecture & State Management
+## Intégration IA (Groq Cloud)
 
-### State Management avec Riverpod
+L’analyse contractuelle s’appuie sur l’**API Groq** (plateforme d’inférence LLM à faible latence), et non sur un modèle embarqué dans l’application.
 
-Le projet utilise **Riverpod** pour la gestion d'état centrale et réactive :
+| Paramètre | Valeur |
+|-----------|--------|
+| **Endpoint** | `POST https://api.groq.com/openai/v1/chat/completions` |
+| **Authentification** | Header `Authorization: Bearer <GROQ_API_KEY>` |
+| **Modèle** | `llama-3.3-70b-versatile` |
+| **Format** | JSON (schéma compatible OpenAI) |
+| **Limite d’entrée** | 4 000 caractères du contrat (gestion approximative des tokens) |
+| **Timeouts** | 30 s (envoi) / 60 s (réception) |
+
+**Rôle du prompt système** : orienter le modèle vers un résumé juridique (100–300 mots, termes clés, obligations, risques).
+
+**Sécurité** : la clé API est chargée depuis un fichier `.env` local, exclu du dépôt Git via `.gitignore`.
+
+Documentation officielle : [console.groq.com](https://console.groq.com/) · [Groq API Reference](https://console.groq.com/docs/api-reference)
+
+---
+
+## Persistance des données
+
+| Stratégie | Technologie | Données concernées |
+|-----------|-------------|-------------------|
+| **Cloud (en ligne)** | Cloud Firestore | Historique des analyses par utilisateur (`users/{uid}/analyses/{id}`) |
+| **Local (fichiers)** | `path_provider` | Copie du PDF dans le répertoire documents de l’application |
+| **Local (préférences)** | `SharedPreferences` | Indicateur de fin d’onboarding |
+| **Secrets** | `.env` | Variable `GROQ_API_KEY` |
+
+**Comportement hors ligne**
+
+- Extraction PDF : **fonctionnelle** sans connexion.
+- Analyse IA et synchronisation historique : **nécessitent Internet**.
+
+---
+
+## Prérequis
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) ≥ 3.3.4
+- [Dart SDK](https://dart.dev/get-dart) compatible
+- Compte [Firebase](https://console.firebase.google.com/) avec Auth et Firestore activés
+- Clé API [Groq Cloud](https://console.groq.com/keys)
+- Émulateur Android/iOS ou appareil physique pour les tests
+
+---
+
+## Installation et configuration
+
+### 1. Récupération du projet
+
+```bash
+git clone <url-du-dépôt>
+cd legal_ease_ai
+flutter pub get
+```
+
+### 2. Variables d’environnement
+
+Créez le fichier de secrets à partir du modèle fourni :
+
+```bash
+cp .env.example .env
+```
+
+Contenu attendu de `.env` :
+
+```env
+GROQ_API_KEY=votre_cle_groq_ici
+```
+
+> **Important** : ne versionnez jamais le fichier `.env` contenant une clé réelle.
+
+### 3. Configuration Firebase
+
+Le dépôt inclut `lib/firebase_options.dart` et `android/app/google-services.json`.
+
+Pour rattacher un nouveau projet Firebase :
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+Services à activer dans la console Firebase :
+
+- **Authentication** : Email/Password, Google
+- **Cloud Firestore** : base de données avec règles restreignant l’accès aux documents de l’utilisateur authentifié
+
+Exemple de règle Firestore (à adapter) :
+
+```text
+users/{userId}/analyses/{docId}  →  lecture/écriture si request.auth.uid == userId
+```
+
+### 4. Vérification de l’environnement
+
+```bash
+flutter doctor
+flutter analyze
+```
+
+---
+
+## Lancement
+
+```bash
+flutter run
+```
+
+Build de production (exemple Android) :
+
+```bash
+flutter build apk --release
+```
+
+---
+
+## Parcours utilisateur
+
+| Étape | Écran / action |
+|-------|----------------|
+| 1 | Onboarding (premier lancement uniquement) |
+| 2 | Connexion ou inscription (email ou Google) |
+| 3 | Accueil — sélection d’un PDF |
+| 4 | Aperçu du texte extrait |
+| 5 | Lancement de l’analyse IA |
+| 6 | Affichage du résumé (Markdown) |
+| 7 | Historique accessible depuis le menu latéral |
+
+---
+
+## Gestion d’état (Riverpod)
 
 | Provider | Type | Responsabilité |
-|----------|------|-----------------|
-| `authStateProvider` | StreamProvider | Écoute les changements Firebase Auth |
-| `authControllerProvider` | Provider | Actions d'authentification (login, signup, SSO) |
-| `scanProvider` | StateNotifierProvider | Gestion de l'extraction PDF |
-| `analysisProvider` | AsyncNotifierProvider | Appel API NVIDIA et résultats |
-| `historyProvider` | StateNotifierProvider | Gestion de l'historique  |
-| `themeProvider` | StateNotifierProvider | Gestion du thème clair/sombre |
-
-### Flux de Données
-
-```
-User Input (HomeScreen)
-    ↓
-scanProvider (PDF selection & extraction)
-    ↓
-analysisProvider (NVIDIA API call)
-    ↓
-ResultScreen (Display results)
-    ↓
-historyProvider (Save to Firebase)
-    ↓
-HistoryListScreen (View past analyses)
-```
+|----------|------|----------------|
+| `authStateProvider` | `StreamProvider<User?>` | Session Firebase en temps réel |
+| `authControllerProvider` | `Provider<AuthController>` | Actions login, register, Google, logout |
+| `themeProvider` | `StateNotifierProvider` | Bascule thème clair / sombre |
+| `scanProvider` | `StateNotifierProvider` | Fichier PDF, texte extrait, chargement |
+| `analysisProvider` | `AsyncNotifierProvider` | État async de l’appel Groq |
+| `historyProvider` | `StreamProvider` | Flux Firestore des analyses |
+| `historyControllerProvider` | `Provider` | Ajout et suppression d’entrées |
 
 ---
 
-## 🔌 Intégration API
+## Gestion des erreurs
 
-### NVIDIA Llama Nemotron Super
+| Cas | Comportement |
+|-----|--------------|
+| Absence de connexion | Message utilisateur explicite (pas de crash) |
+| Timeout réseau | Message dédié ; bouton **Réessayer** sur l’écran résultat |
+| Clé API absente ou invalide | Message orientant vers la configuration `.env` |
+| Erreur serveur (5xx) | Message invitant à réessayer ultérieurement |
+| Échec extraction PDF | Snackbar d’erreur via `scanProvider` |
 
-**Endpoint :** `https://integrate.api.nvidia.com/v1/chat/completions`
-
-**Modèle :** `nvidia/llama-3.3-nemotron-super-49b-v1`
-
-**Caractéristiques :**
-- Analyse juridique avancée (LLM State-of-the-art)
-- Extraction de clauses clés et risques
-- Réponses structurées en français
-- Limite de tokens : ~4000 caractères par analyse
-
-**Gestion des erreurs :**
-- Timeouts : 30s envoi, 60s réception
-- Gestion des codes d'erreur API (401, 429, 503)
-- Messages d'erreur utilisateur-friendly en français
+Implémentation centralisée : `lib/core/utils/api_error_message.dart`.
 
 ---
 
-```dart
-// Exemple
-await _box.put(item.id, item.toMap());
-final history = _box.values.map((item) => HistoryItem.fromMap(item));
-```
+## Structure du dépôt
 
-### SharedPreferences
-- **Onboarding status** : `onboarding_complete`
-- **Paramètres utilisateur** : thème, langue
-
-### Firebase
-- **Auth persistence** : Maintien automatique de la session
-- **Token refresh** : Gestionné par Firebase
-
----
-
-## 🎨 Interface Utilisateur
-
-### Material 3 Design System
-- Support du Dark Mode automatique
-- Couleurs adaptatives basées sur le système
-- Animations fluides (transitions, spinners)
-- Responsive design (mobile, tablet)
-
-### Écrans Principaux
-1. **OnboardingScreen** : Première utilisation
-2. **LoginScreen / RegisterScreen** : Authentification
-3. **HomeScreen** : Dashboard avec graphiques
-4. **ResultScreen** : Résultats d'analyse + export PDF
-5. **HistoryListScreen** : Historique des analyses
-
-### Feedback Utilisateur
-- ✅ Spinners de chargement (CircularProgressIndicator)
-- ✅ Snackbars pour erreurs/succès
-- ✅ Indicateurs de téléchargement
-- ✅ Confirmations de suppression (Dismissible)
-
----
-
-## 🧪 Tests et Déploiement
-
-### Tests Locaux
-```bash
-flutter test
-```
-
-### Build Production
-```bash
-# Android
-flutter build apk --release
-
-# iOS
-flutter build ios --release
+```text
+legal_ease_ai/
+├── lib/                    # Code source Flutter
+├── android/                # Projet Android natif
+├── ios/                    # Projet iOS natif
+├── test/                   # Tests (à compléter)
+├── .env.example            # Modèle de configuration (sans secrets)
+├── pubspec.yaml            # Dépendances Dart/Flutter
+├── firebase.json           # Configuration Firebase
+└── README.md               # Documentation du projet
 ```
 
 ---
 
-## 📄 Licences et Dépendances
+## Limites connues
 
-| Package | Version | Utilité |
-|---------|---------|---------|
-| `flutter_riverpod` | ^2.5.1 | State Management |
-| `firebase_auth` | ^4.17.4 | Authentification |
-| `dio` | ^5.4.3 | API HTTP Client |
-| `syncfusion_flutter_pdf` | ^24.2.3 | Extraction/Export PDF |
-| `fl_chart` | ^0.66.0 | Graphiques |
-| `firebase_core` | ^2.25.4 | Firebase init |
-| `google_sign_in` | ^6.2.1 | Google SSO |
-| `introduction_screen` | ^3.1.12 | Onboarding |
-| `shared_preferences` | ^2.2.2 | Persistent preferences |
-| `share_plus` | ^9.0.0 | Partage fichiers |
-| `file_picker` | ^8.0.0 | Sélection fichiers |
-| `path_provider` | ^2.1.2 | Accès répertoires |
-| `flutter_dotenv` | Latest | Variables d'environnement |
+- Analyse limitée aux **4 000 premiers caractères** du document source.
+- Pas de modèle **Machine Learning** embarqué : l’intelligence repose sur un **LLM distant** (Groq).
+- Historique non consultable hors ligne (dépendance Firestore).
+- Visualisation statistique simplifiée (compteur de contrats, sans graphiques avancés).
+- Interface optimisée **mobile-first** ; adaptation tablette/desktop non spécifique.
 
 ---
 
-## 🤝 Contribution
+## Licence et usage académique
 
-Les contributions sont bienvenues ! Pour les changements majeurs, ouvrez d'abord une issue pour discuter des modifications proposées.
+Projet à vocation **éducative** — module développement mobile cross-platform.
 
----
-
-## 📧 Support
-
-Pour toute question ou problème, veuillez contacter : **[votre-email@exemple.com](mailto:votre-email@exemple.com)**
+Les clés API, identifiants Firebase et documents contractuels de test ne doivent pas être exposés publiquement.
 
 ---
 
-## 📄 Étapes
-1. Cloner le dépôt :
-   ```bash
-   git clone [https://github.com/votre-nom/legal_ease_ai.git](https://github.com/votre-nom/legal_ease_ai.git)
-   cd legal_ease_ai
+<p align="center">
+  <sub>Legal-Ease AI · Flutter · Riverpod · Firebase · Groq Cloud</sub>
+</p>

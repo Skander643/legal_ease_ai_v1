@@ -1,26 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// CustomTextField
-///
-/// Reusable text input field with consistent styling across the app.
-///
-/// Features:
-/// - Label text with optional asterisk for required fields
-/// - Icon support (prefix/suffix)
-/// - Error message display
-/// - Customizable validation
-/// - Password field support (obscureText)
-/// - Optional helper text
-///
-/// Usage:
-/// ```dart
-/// CustomTextField(
-///   label: 'Email',
-///   controller: emailController,
-///   prefixIcon: Icons.email,
-///   keyboardType: TextInputType.emailAddress,
-/// )
-/// ```
 class CustomTextField extends StatefulWidget {
   final String label;
   final TextEditingController controller;

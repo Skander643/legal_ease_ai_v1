@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// InfoCard
-///
-/// Reusable card for displaying information with an icon and label.
-///
-/// Features:
-/// - Icon with customizable color
-/// - Value text
-/// - Label text
-/// - Tappable
-///
-/// Usage:
-/// ```dart
-/// InfoCard(
-///   icon: Icons.description,
-///   label: 'Contrats analysés',
-///   value: '12',
-///   color: Colors.blue,
-/// )
-/// ```
 class InfoCard extends StatelessWidget {
   final IconData icon;
   final String label;

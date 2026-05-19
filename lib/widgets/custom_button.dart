@@ -1,30 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// CustomButton
-///
-/// Reusable button with consistent Material 3 styling.
-///
-/// Types:
-/// - Elevated: Primary action button
-/// - Outlined: Secondary action button
-/// - Text: Tertiary action button
-///
-/// Features:
-/// - Loading state with spinner
-/// - Full width option
-/// - Icon support
-/// - Disabled state
-/// - Custom sizing
-///
-/// Usage:
-/// ```dart
-/// CustomButton(
-///   label: 'Analyser',
-///   onPressed: () => analyzeContract(),
-///   isLoading: isAnalyzing,
-/// )
-/// ```
-/// Button style variants for [CustomButton].
 enum ButtonType { elevated, outlined, text }
 
 class CustomButton extends StatelessWidget {

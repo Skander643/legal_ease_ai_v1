@@ -1,23 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// CustomCard
-///
-/// Reusable card widget with consistent elevation and padding.
-///
-/// Features:
-/// - Customizable elevation
-/// - Optional icon header
-/// - Flexible padding
-/// - Click handling
-///
-/// Usage:
-/// ```dart
-/// CustomCard(
-///   icon: Icons.summarize,
-///   title: 'Résumé',
-///   child: Text('Contract summary here...'),
-/// )
-/// ```
 class CustomCard extends StatelessWidget {
   final Widget child;
   final IconData? icon;

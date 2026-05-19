@@ -1,21 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// LoadingSpinner
-///
-/// Reusable loading state widget with customizable message.
-///
-/// Features:
-/// - Centered spinner
-/// - Optional message text
-/// - Customizable size
-/// - Full screen or compact mode
-///
-/// Usage:
-/// ```dart
-/// const LoadingSpinner(
-///   message: 'L\'IA analyse votre contrat...',
-/// )
-/// ```
+
 class LoadingSpinner extends StatelessWidget {
   final String? message;
   final double spinnerSize;

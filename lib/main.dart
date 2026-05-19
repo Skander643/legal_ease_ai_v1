@@ -13,55 +13,51 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await dotenv.load(fileName: ".env"); // Load API key
+  await dotenv.load(fileName: ".env"); 
 
 
-  // VÉRIFICATION DU PREMIER LANCEMENT
+
   final prefs = await SharedPreferences.getInstance();
   final bool showOnboarding = !(prefs.getBool('onboarding_complete') ?? false);
 
-  // On passe la variable showOnboarding à notre app
   runApp(ProviderScope(child: LegalEaseApp(showOnboarding: showOnboarding)));
   
 
 }
 
-class LegalEaseApp extends ConsumerWidget {
-
+class LegalEaseApp extends StatelessWidget {
   final bool showOnboarding;
-  const LegalEaseApp({super.key,required this.showOnboarding});
+  const LegalEaseApp({super.key, required this.showOnboarding});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final themeMode = ref.watch(themeProvider);
 
-    final themeMode = ref.watch(themeProvider);
-
-    return MaterialApp(
-      title: 'Legal-Ease AI',
-      debugShowCheckedModeBanner: false,
-      // Automatic light/dark mode based on the user's system 
-      themeMode: themeMode, 
-      
-      // Light Theme Setup 
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple, // You can change this primary color later
-          brightness: Brightness.light,
-        ),
-      ),
-      
-      // Dark Theme Setup 
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
-      
-      // A temporary home screen to test that the app runs
-     home: showOnboarding ? const OnboardingScreen() : const AuthWrapper(),
+        return MaterialApp(
+          title: 'Legal-Ease AI',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.light,
+            ),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+            ),
+          ),
+          home: showOnboarding
+              ? const OnboardingScreen()
+              : const AuthWrapper(),
+        );
+      },
     );
   }
 }

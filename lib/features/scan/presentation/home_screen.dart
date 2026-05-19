@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
 
                 // Welcome message
                 Text(
-                  'Salut $firstName 👋',
+                  'Salut $firstName ',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.deepPurple,

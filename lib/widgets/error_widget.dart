@@ -1,22 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// ErrorDisplayWidget
-///
-/// Reusable error state widget with customizable message and retry action.
-///
-/// Features:
-/// - Error icon with color
-/// - Error message text
-/// - Optional retry button
-/// - Full screen or compact mode
-///
-/// Usage:
-/// ```dart
-/// ErrorDisplayWidget(
-///   message: 'Impossible de contacter l\'API',
-///   onRetry: () => retryAnalysis(),
-/// )
-/// ```
 class ErrorDisplayWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;

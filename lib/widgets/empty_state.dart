@@ -1,25 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// EmptyStateWidget
-///
-/// Reusable widget for empty state displays when no data is available.
-///
-/// Features:
-/// - Large icon
-/// - Title and description
-/// - Optional action button
-/// - Customizable styling
-///
-/// Usage:
-/// ```dart
-/// EmptyStateWidget(
-///   icon: Icons.description,
-///   title: 'Aucun document',
-///   description: 'Commencez par scanner un contrat',
-///   actionLabel: 'Scanner un PDF',
-///   onAction: () => pickPdf(),
-/// )
-/// ```
+
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
   final String title;

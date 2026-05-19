@@ -9,27 +9,22 @@ class HistoryListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final historyAsync = ref.watch(historyProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Historique des analyses')),
+      body: Consumer(
+        builder: (context, ref, child) {
+          final historyAsync = ref.watch(historyProvider);
 
-        return Scaffold(
-          appBar: AppBar(title: const Text('Historique des analyses')),
-          body: historyAsync.when(
-            // Loading state
+          return historyAsync.when(
             loading: () => const LoadingSpinner(
               message: 'Chargement de l\'historique...',
               fullScreen: false,
             ),
-
-            // Error state
             error: (error, _) => ErrorDisplayWidget(
               message: error.toString(),
               fullScreen: false,
               onRetry: () => ref.invalidate(historyProvider),
             ),
-
-            // Data state
             data: (historyList) {
               if (historyList.isEmpty) {
                 return const EmptyStateWidget(
@@ -39,16 +34,29 @@ class HistoryListScreen extends StatelessWidget {
                   fullScreen: false,
                 );
               }
-
-              return ListView.builder(
-                itemCount: historyList.length,
-                itemBuilder: (context, index) =>
-                    HistoryItemTile(item: historyList[index]),
+              return Column(
+                children: [
+                  Expanded(
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: ListView.builder(
+                        itemCount: historyList.length,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemBuilder: (context, index) {
+                          return HistoryItemTile(
+                            key: ValueKey('tile_${historyList[index].id}'),
+                            item: historyList[index],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

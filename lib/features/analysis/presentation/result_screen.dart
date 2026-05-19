@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../providers/analysis_provider.dart';
 import '../../history/models/history_item.dart';
@@ -11,25 +12,32 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final analysisState = ref.watch(analysisProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text("Résultat de l'analyse")),
+      body: Consumer(
+        builder: (context, ref, child) {
+          final analysisState = ref.watch(analysisProvider);
 
-        return Scaffold(
-          appBar: AppBar(title: const Text("Résultat de l'analyse")),
-          body: analysisState.when(
+          return analysisState.when(
             // Loading state
             loading: () => const LoadingSpinner(
               message:
                   "L'IA analyse votre contrat...\ncela peut prendre quelques secondes.",
               fullScreen: false,
             ),
-
-            // Error state
-            error: (error, _) => ErrorDisplayWidget(
-              message: error.toString(),
-              fullScreen: false,
-            ),
+            
+            error: (error, _) {
+              final extractedText = ref.read(scanProvider).extractedText;
+              return ErrorDisplayWidget(
+                message: error.toString(),
+                fullScreen: false,
+                onRetry: extractedText.isEmpty
+                    ? null
+                    : () => ref
+                        .read(analysisProvider.notifier)
+                        .analyzeContract(extractedText),
+              );
+            },
 
             // Data state
             data: (result) {
@@ -72,9 +80,9 @@ class ResultScreen extends StatelessWidget {
                       title: 'Résumé Simplifié',
                       backgroundColor:
                           Theme.of(context).colorScheme.primaryContainer,
-                      child: Text(
-                        result.summary,
-                        style: const TextStyle(fontSize: 16),
+                      child: MarkdownBody(
+                        data: result.summary,
+                        selectable: true,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -82,9 +90,9 @@ class ResultScreen extends StatelessWidget {
                 ),
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

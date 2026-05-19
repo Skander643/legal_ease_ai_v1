@@ -4,16 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
-/// ScanState
-///
-/// Classe immutable représentant l'état du scanner PDF.
-/// Utilise le pattern Immutable pour garantir la réactivité avec Riverpod.
-///
-/// Propriétés:
-/// - selectedFile: Le fichier PDF sélectionné (null si aucun)
-/// - extractedText: Texte extrait du PDF (vide par défaut)
-/// - isLoading: Flag de chargement (lors de l'extraction)
-/// - error: Message d'erreur (null si pas d'erreur)
 class ScanState {
   final File? selectedFile;
   final String extractedText;
@@ -27,15 +17,7 @@ class ScanState {
     this.error,
   });
 
-  /// copyWith
-  ///
-  /// Crée une nouvelle instance de ScanState avec les valeurs modifiées.
-  /// Permet une mise à jour immutable de l'état.
-  ///
-  /// Exemple:
-  /// ```dart
-  /// final newState = state.copyWith(isLoading: true);
-  /// ```
+
   ScanState copyWith({
     File? selectedFile,
     String? extractedText,
@@ -46,44 +28,14 @@ class ScanState {
       selectedFile: selectedFile ?? this.selectedFile,
       extractedText: extractedText ?? this.extractedText,
       isLoading: isLoading ?? this.isLoading,
-      error: error, // Allow error to be null explicitly
+      error: error,
     );
   }
 }
 
-/// ScanNotifier
-///
-/// Gère la logique de sélection et d'extraction de fichiers PDF.
-///
-/// Processus complet:
-/// 1. Ouvrir le sélecteur de fichiers (FilePicker)
-/// 2. Valider le fichier (format, taille)
-/// 3. Copier le fichier dans le stockage local de l'app
-/// 4. Extraire le texte avec Syncfusion
-/// 5. Mettre à jour l'état Riverpod
-///
-/// Gestion d'erreurs:
-/// - Fichier annulé: Retour sans changement
-/// - Erreur d'extraction: Message d'erreur affiché
-/// - Pas de droits d'accès: Exception capturée
 class ScanNotifier extends StateNotifier<ScanState> {
   ScanNotifier() : super(ScanState());
 
-  /// pickAndProcessPdf
-  ///
-  /// Flux complet de sélection et traitement d'un PDF:
-  ///
-  /// 1. Lance le FilePicker (utilisateur sélectionne un PDF)
-  /// 2. Valide la sélection (non-null)
-  /// 3. Copie le fichier dans getApplicationDocumentsDirectory()
-  ///    (persistance offline + isolation du sandbox)
-  /// 4. Utilise Syncfusion pour extraire le texte
-  /// 5. Met à jour l'état avec le fichier et le texte
-  ///
-  /// Erreurs gérées:
-  /// - Utilisateur annule: Retour silencieux
-  /// - Impossible de lire le fichier: Exception capturée
-  /// - Extraction échouée: Message d'erreur affiché
   Future<void> pickAndProcessPdf() async {
     try {
       // Marquer l'état comme "en cours de chargement"
@@ -132,28 +84,12 @@ class ScanNotifier extends StateNotifier<ScanState> {
     }
   }
 
-  /// clearSelection
-  ///
-  /// Réinitialise l'état du scanner.
-  /// Utile après une analyse réussie ou un changement d'écran.
+
   void clearSelection() {
     state = ScanState();
   }
 }
 
-/// scanProvider
-///
-/// Provider Riverpod exposant le ScanNotifier.
-/// Permet à tous les widgets d'accéder à l'état du scanner.
-///
-/// Utilisation:
-/// ```dart
-/// // Regarder l'état
-/// final scanState = ref.watch(scanProvider);
-///
-/// // Exécuter une action
-/// await ref.read(scanProvider.notifier).pickAndProcessPdf();
-/// ```
 final scanProvider = StateNotifierProvider<ScanNotifier, ScanState>((ref) {
   return ScanNotifier();
 });

@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:legal_ease_ai/widgets/widgets.dart';
 import '../models/history_item.dart';
 import '../providers/history_provider.dart';
 
-/// HistoryItemTile
-///
-/// Reusable feature-level widget for a single history entry.
-///
-/// Features:
-/// - Swipe-to-delete with [Dismissible]
-/// - Card layout with file name and date
-/// - Tap to open a summary detail dialog
-/// - Uses [SnackbarHelper] for delete confirmation
 class HistoryItemTile extends StatelessWidget {
   final HistoryItem item;
 
@@ -26,7 +18,15 @@ class HistoryItemTile extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(item.pdfFileName),
-        content: SingleChildScrollView(child: Text(item.summary)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: MarkdownBody(
+              data: item.summary,
+              selectable: true,
+            ),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -42,19 +42,20 @@ class HistoryItemTile extends StatelessWidget {
     return Consumer(
       builder: (context, ref, child) {
         return Dismissible(
-          key: Key(item.id),
+          key: ValueKey('dismiss_${item.id}'),
+          direction: DismissDirection.endToStart,
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
-          direction: DismissDirection.endToStart,
           onDismissed: (_) {
             ref.read(historyControllerProvider).deleteHistory(item.id);
             SnackbarHelper.showInfo(context, 'Analyse supprimée');
           },
           child: Card(
+            elevation: 2,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               leading: const Icon(Icons.history_edu),
